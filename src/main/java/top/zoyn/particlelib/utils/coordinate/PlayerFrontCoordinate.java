@@ -23,9 +23,9 @@ public class PlayerFrontCoordinate implements Coordinate {
     public PlayerFrontCoordinate(Pos playerPos) {
         // 旋转的角度
         rotateAngle = playerPos.yaw() + 90D;
-        originDot = playerPos;
+        originDot = playerPos
         // 重设仰俯角, 防止出现仰头后旋转角度不正确的问题
-        originDot.withPitch(0);
+        .withPitch(0);
     }
 
     public Pos getOriginDot() {

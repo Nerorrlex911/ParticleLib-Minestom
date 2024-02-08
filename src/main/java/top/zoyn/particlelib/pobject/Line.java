@@ -63,23 +63,6 @@ public class Line extends ParticleObject implements Playable {
         resetVector();
     }
 
-    public static void buildLine(Pos locA, Pos locB, double step, Particle particle) {
-        Vec vecAB = locB.sub(locA).asVec();
-        double vectorLength = vecAB.length();
-        vecAB.normalize();
-        for (double i = 0; i < vectorLength; i += step) {
-            locA.getWorld().spawnParticle(particle, locA.add(vecAB.mul(i)), 1);
-        }
-    }
-
-    public static void buildLine(Pos locA, Pos locB, double step, Color color) {
-        Vec vecAB = locB.sub(locA).asVec();
-        double vectorLength = vecAB.length();
-        vecAB.normalize();
-        for (double i = 0; i < vectorLength; i += step) {
-            locA.getWorld().spawnParticle(Particle.REDSTONE, locA.add(vecAB.mul(i)), 1, 0, 0, 0, color);
-        }
-    }
 
     @Override
     public List<Pos> calculateLocations() {
@@ -160,7 +143,7 @@ public class Line extends ParticleObject implements Playable {
     public void resetVector() {
         vec = end.sub(start).asVec();
         length = vec.length();
-        vec.normalize();
+        vec = vec.normalize();
     }
 
 }

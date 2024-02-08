@@ -39,8 +39,8 @@ public class Star extends ParticleObject implements Playable {
 
         double x = radius * Math.cos(Math.toRadians(72));
         double z = radius * Math.sin(Math.toRadians(72));
-        changeableStart = new Vec(radius * (Math.cos(Math.toRadians(72 * 3)) - x), 0, radius * (Math.sin(Math.toRadians(72 * 3)) - z));
-        changeableStart.normalize();
+        changeableStart = new Vec(radius * (Math.cos(Math.toRadians(72 * 3)) - x), 0, radius * (Math.sin(Math.toRadians(72 * 3)) - z))
+        .normalize();
         changableEnd = getOrigin().add(x, 0, z);
     }
 
@@ -54,7 +54,7 @@ public class Star extends ParticleObject implements Playable {
         double z2 = radius * Math.sin(Math.toRadians(72 * 3));
 
         Vec START = new Vec(x2 - x, 0, z2 - z);
-        START.normalize();
+        START = START.normalize();
         Pos end = getOrigin().add(x, 0, z);
 
         for (int i = 1; i <= 5; i++) {
@@ -79,7 +79,7 @@ public class Star extends ParticleObject implements Playable {
                 showPos = getOrigin().add(changed);
             }
 
-            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            showPos = showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
             return showPos;
         }).collect(Collectors.toList());
     }
@@ -93,7 +93,7 @@ public class Star extends ParticleObject implements Playable {
         double z2 = radius * Math.sin(Math.toRadians(72 * 3));
 
         Vec START = new Vec(x2 - x, 0, z2 - z);
-        START.normalize();
+        START = START.normalize();
         Pos end = getOrigin().add(x, 0, z);
 
         for (int i = 1; i <= 5; i++) {

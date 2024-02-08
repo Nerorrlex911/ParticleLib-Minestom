@@ -43,7 +43,7 @@ public class NStar extends ParticleObject {
 
         Vec START = new Vec(x2 - x, 0, z2 - z);
         double length = START.length();
-        START.normalize();
+        START = START.normalize();
         Pos end = getOrigin().add(x, 0, z);
 
         for (int i = 1; i <= corner; i++) {
@@ -68,7 +68,7 @@ public class NStar extends ParticleObject {
                 showPos = getOrigin().add(changed);
             }
 
-            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            showPos = showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
             return showPos;
         }).collect(Collectors.toList());
     }
@@ -83,7 +83,7 @@ public class NStar extends ParticleObject {
 
         Vec START = new Vec(x2 - x, 0, z2 - z);
         double length = START.length();
-        START.normalize();
+        START = START.normalize();
         Pos end = getOrigin().add(x, 0, z);
 
         for (int i = 1; i <= corner; i++) {

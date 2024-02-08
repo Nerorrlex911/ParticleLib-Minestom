@@ -85,7 +85,7 @@ public class Heart extends ParticleObject implements Playable {
                 showPos = getOrigin().add(changed);
             }
 
-            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            showPos = showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
             points.add(showPos);
 //            points.add(getOrigin().add(x, 0, y));
         }

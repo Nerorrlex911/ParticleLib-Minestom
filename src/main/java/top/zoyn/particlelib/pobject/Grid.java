@@ -23,20 +23,20 @@ public class Grid extends ParticleObject {
         this.minimumPos = minimumPos;
         this.maximumPos = maximumPos;
         // 平面检查
-        if (minimumPos.getBlockX() != maximumPos.getBlockX()) {
-            if (minimumPos.getBlockZ() != maximumPos.getBlockZ()) {
-                if (minimumPos.getBlockY() != maximumPos.getBlockY()) {
+        if (minimumPos.x() != maximumPos.x()) {
+            if (minimumPos.z() != maximumPos.z()) {
+                if (minimumPos.y() != maximumPos.y()) {
                     throw new IllegalArgumentException("请将两点设定在X平面, Y平面或Z平面上(即一个方块的面上)");
                 }
             }
         }
-        if (minimumPos.getBlockX() == maximumPos.getBlockX()) {
+        if (minimumPos.x() == maximumPos.x()) {
             isXDimension = false;
         }
-        if (minimumPos.getBlockY() == maximumPos.getBlockY()) {
+        if (minimumPos.y() == maximumPos.y()) {
             isYDimension = true;
         }
-        if (minimumPos.getBlockZ() == maximumPos.getBlockZ()) {
+        if (minimumPos.z() == maximumPos.z()) {
             isXDimension = true;
         }
 
@@ -71,7 +71,7 @@ public class Grid extends ParticleObject {
         if (isYDimension) {
             for (int i = 1; i <= heightSideLine; i++) {
                 Vec vec = maxPos.sub(minPos).asVec();
-                vec.withZ(0).normalize();
+                vec = vec.withZ(0).normalize();
 
                 Pos start = minPos.add(0, 0, i * gridLength);
                 for (double j = 0; j < width; j += 0.2) {
@@ -81,7 +81,7 @@ public class Grid extends ParticleObject {
 
             for (int i = 1; i <= widthSideLine; i++) {
                 Vec vec = maxPos.sub(minPos).asVec();
-                vec.withX(0).normalize();
+                vec = vec.withX(0).normalize();
                 Pos start = minPos.add(i * gridLength, 0, 0);
 
                 for (double j = 0; j < height; j += 0.2) {
@@ -93,7 +93,7 @@ public class Grid extends ParticleObject {
 
         for (int i = 1; i <= heightSideLine; i++) {
             Vec vec = maxPos.sub(minPos).asVec();
-            vec.withY(0).normalize();
+            vec = vec.withY(0).normalize();
 
             Pos start = minPos.add(0, i * gridLength, 0);
             for (double j = 0; j < width; j += 0.2) {
@@ -105,10 +105,10 @@ public class Grid extends ParticleObject {
             Vec vec = maxPos.sub(minPos).asVec();
             Pos start;
             if (isXDimension) {
-                vec.withX(0).normalize();
+                vec = vec.withX(0).normalize();
                 start = minPos.add(i * gridLength, 0, 0);
             } else {
-                vec.withZ(0).normalize();
+                vec = vec.withZ(0).normalize();
                 start = minPos.add(0, 0, i * gridLength);
             }
 
@@ -127,7 +127,7 @@ public class Grid extends ParticleObject {
                 showPos = getOrigin().add(changed);
             }
 
-            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            showPos = showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
             return showPos;
         }).collect(Collectors.toList());
     }
@@ -159,7 +159,7 @@ public class Grid extends ParticleObject {
         if (isYDimension) {
             for (int i = 1; i <= heightSideLine; i++) {
                 Vec vec = maxPos.sub(minPos).asVec();
-                vec.withZ(0).normalize();
+                vec = vec.withZ(0).normalize();
 
                 Pos start = minPos.add(0, 0, i * gridLength);
                 for (double j = 0; j < width; j += 0.2) {
@@ -170,7 +170,7 @@ public class Grid extends ParticleObject {
 
             for (int i = 1; i <= widthSideLine; i++) {
                 Vec vec = maxPos.sub(minPos).asVec();
-                vec.withX(0).normalize();
+                vec = vec.withX(0).normalize();
                 Pos start = minPos.add(i * gridLength, 0, 0);
 
                 for (double j = 0; j < height; j += 0.2) {
@@ -182,7 +182,7 @@ public class Grid extends ParticleObject {
 
         for (int i = 1; i <= heightSideLine; i++) {
             Vec vec = maxPos.sub(minPos).asVec();
-            vec.withY(0).normalize();
+            vec = vec.withY(0).normalize();
 
             Pos start = minPos.add(0, i * gridLength, 0);
             for (double j = 0; j < width; j += 0.2) {
@@ -194,10 +194,10 @@ public class Grid extends ParticleObject {
             Vec vec = maxPos.sub(minPos).asVec();
             Pos start;
             if (isXDimension) {
-                vec.withX(0).normalize();
+                vec = vec.withX(0).normalize();
                 start = minPos.add(i * gridLength, 0, 0);
             } else {
-                vec.withZ(0).normalize();
+                vec = vec.withZ(0).normalize();
                 start = minPos.add(0, 0, i * gridLength);
             }
 
@@ -212,7 +212,7 @@ public class Grid extends ParticleObject {
         double minY = Math.min(minimumPos.y(), maximumPos.y());
         double minZ = Math.min(minimumPos.z(), maximumPos.z());
 
-        return new Pos(minimumPos.getWorld(), minX, minY, minZ);
+        return new Pos(minX, minY, minZ);
     }
 
     private Pos findMaximumLocation() {
@@ -220,7 +220,7 @@ public class Grid extends ParticleObject {
         double maxY = Math.max(minimumPos.y(), maximumPos.y());
         double maxZ = Math.max(minimumPos.z(), maximumPos.z());
 
-        return new Pos(minimumPos.getWorld(), maxX, maxY, maxZ);
+        return new Pos(maxX, maxY, maxZ);
     }
 
     public Pos getMinimumLocation() {

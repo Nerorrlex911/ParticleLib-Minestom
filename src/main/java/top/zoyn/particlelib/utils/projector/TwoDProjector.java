@@ -25,7 +25,7 @@ public class TwoDProjector {
     public TwoDProjector(Pos origin, Vec n) {
         this.origin = origin;
         Vec t = n;
-        t.withY(t.y() + 1);
+        t = t.withY(t.y() + 1);
         this.n1 = n.cross(t).normalize();
         this.n2 = this.n1.cross(n).normalize();
     }
@@ -40,7 +40,7 @@ public class TwoDProjector {
      */
     public static BiFunction<Double, Double, Pos> create2DProjector(Pos loc, Vec n) {
         Vec t = n;
-        t.withY(t.y() + 1);
+        t = t.withY(t.y() + 1);
         Vec n1 = n.cross(t).normalize();
         Vec n2 = n1.cross(n).normalize();
         return (x, y) -> {

@@ -83,7 +83,7 @@ public class Polygon extends ParticleObject implements Playable {
             if (i + 1 == temp.size()) {
                 Vec vecAB = temp.get(i).sub(temp.get(0)).asVec();
                 double vectorLength = vecAB.length();
-                vecAB.normalize();
+                vecAB = vecAB.normalize();
                 for (double j = 0; j < vectorLength; j += step) {
                     points.add(temp.get(0).add(vecAB.mul(j)));
                 }
@@ -92,7 +92,7 @@ public class Polygon extends ParticleObject implements Playable {
 
             Vec vecAB = temp.get(i + 1).sub(temp.get(i)).asVec();
             double vectorLength = vecAB.length();
-            vecAB.normalize();
+            vecAB = vecAB.normalize();
             for (double j = 0; j < vectorLength; j += step) {
                 points.add(temp.get(i).add(vecAB.mul(j)));
             }
@@ -107,7 +107,7 @@ public class Polygon extends ParticleObject implements Playable {
                 showPos = getOrigin().add(changed);
             }
 
-            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            showPos = showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
             return showPos;
         }).collect(Collectors.toList());
     }
@@ -193,7 +193,7 @@ public class Polygon extends ParticleObject implements Playable {
     private void buildLine(Pos locA, Pos locB, double step) {
         Vec vecAB = locB.sub(locA).asVec();
         double vectorLength = vecAB.length();
-        vecAB.normalize();
+        vecAB = vecAB.normalize();
         for (double i = 0; i < vectorLength; i += step) {
             spawnParticle(locA.add(vecAB.mul(i)));
         }

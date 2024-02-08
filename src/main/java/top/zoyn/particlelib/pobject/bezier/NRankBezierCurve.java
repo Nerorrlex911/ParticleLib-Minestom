@@ -88,7 +88,7 @@ public class NRankBezierCurve extends ParticleObject implements Playable {
                 showPos = getOrigin().add(changed);
             }
 
-            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            showPos = showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
             return showPos;
         }).collect(Collectors.toList());
     }

@@ -17,9 +17,9 @@ public class PlayerBackCoordinate implements Coordinate {
     public PlayerBackCoordinate(Pos playerPos) {
         // 旋转的角度
         rotateAngle = playerPos.yaw();
-        originDot = playerPos;
+        originDot = playerPos
         // 重设仰俯角
-        originDot.withPitch(0);
+        .withPitch(0);
         // 使原点与玩家有一点点距离
         originDot.add(originDot.direction().mul(-0.3));
     }

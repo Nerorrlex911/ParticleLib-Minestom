@@ -24,7 +24,7 @@ public class ThreeDProjector {
     public ThreeDProjector(Pos origin, Vec n) {
         this.origin = origin;
         Vec t = n;
-        t.withY(t.y() + 1);
+        t = t.withY(t.y() + 1);
         this.n1 = n.cross(t).normalize();
         this.n2 = n1.cross(n).normalize();
         this.n3 = n.normalize();
