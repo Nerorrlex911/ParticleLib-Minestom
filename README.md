@@ -1,27 +1,28 @@
 <div align="center">
     <h1>ParticleLib</h1>
-    <h6>一个随便写的但是还挺稳的粒子特效库</h6>
-    <img src="https://z4a.net/images/2023/01/29/1673056016859.jpg" width="200" height="200">
+    <h6>Minestom library used to generate different shapes of particle effect</h6>
 
 ----
 
-[![Java CI with Gradle](https://github.com/602723113/ParticleLib/actions/workflows/gradle.yml/badge.svg)](https://github.com/602723113/ParticleLib/actions/workflows/gradle.yml)
-[![](https://jitpack.io/v/602723113/ParticleLib.svg)](https://jitpack.io/#602723113/ParticleLib)
-
 </div>
 
-ParticleLib 是一个基于 BukkitAPI 编写的粒子特效程序库。它提供极其简洁易懂的 API，使你可以毫无压力地开始验证你的绝佳创意。
+ParticleLib is a Minestom library based on a Bukkit Plugin [ParticleLib](https://github.com/602723113/ParticleLib).
+
+It is capable of 
+1. generating different shapes of particle effect.
+2. generating particle effect using math equations.
+3. performing Matrix transformation on the particle effect.
+4. premade common particle effect(like lotus,wings).
+
+Currently, it just works but does not perfectly integrate with Minestom (mostly due to the difference on Scheduler).
+
+if you want to contribute to this project, please feel free to pull request.
 
 <div align="center">
-如果你觉得这个项目还不错, 麻烦给个 Star 吧, 这对我真的很重要, <b>鼠鼠求求了</b>
+
 </div>
 
-# 使用方法
+# Usage
 
-现已上线 [ParticleLib Docs](https://effect.zoyn.top/) 欢迎查阅以获得最新的文档帮助
+a doc in Chinese from the author of ParticleLib is [here](https://effect.zoyn.top/) 
 
-<div align="center">
-<b>无法访问请挂梯子</b>
-</div>
-
-~~请点击 [Wiki](https://github.com/602723113/ParticleLib/wiki) 获得更多~~
