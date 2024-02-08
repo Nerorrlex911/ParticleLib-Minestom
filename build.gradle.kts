@@ -9,6 +9,7 @@ repositories {
 }
 
 dependencies {
+    compileOnly("com.google.guava:guava:33.0.0-jre")
     compileOnly("dev.hollowcube:minestom-ce:47dfb29c20")
     compileOnly("dev.hollowcube:minestom-ce-extensions:1.2.0")
 }

@@ -3,7 +3,6 @@ package top.zoyn.particlelib.pobject;
 import com.google.common.collect.Lists;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
-import org.bukkit.Color;
 import top.zoyn.particlelib.ParticleLib;
 import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
 
@@ -46,10 +45,6 @@ public class Sphere extends ParticleObject implements Playable {
 
         pos = new ArrayList<>();
         resetLocations();
-    }
-
-    public Sphere(Pos origin, int sample, double radius, Color color) {
-        this(origin, sample, radius);
     }
 
     @Override
