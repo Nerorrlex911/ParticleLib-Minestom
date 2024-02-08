@@ -1,0 +1,5 @@
+{
+  "entrypoint": "top.zoyn.particlelib.ParticleLib",
+  "name": "ParticleLib",
+  "version": "1.0.0"
+}

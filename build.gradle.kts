@@ -5,15 +5,10 @@ plugins {
 
 repositories {
     mavenLocal()
-    maven("https://hub.spigotmc.org/nexus/content/repositories/snapshots/")
-    // lss的库
-    maven("https://lss233.littleservice.cn/repositories/minecraft")
     mavenCentral()
 }
 
 dependencies {
-    compileOnly("org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT")
-    compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
     compileOnly("dev.hollowcube:minestom-ce:47dfb29c20")
     compileOnly("dev.hollowcube:minestom-ce-extensions:1.2.0")
 }
