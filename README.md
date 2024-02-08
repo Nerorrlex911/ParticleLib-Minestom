@@ -1,12 +1,12 @@
 <div align="center">
-    <h1>ParticleLib</h1>
+    <h1>ParticleLib-Minestom</h1>
     <h6>Minestom library used to generate different shapes of particle effect</h6>
 
 ----
 
 </div>
 
-ParticleLib is a Minestom library based on a Bukkit Plugin [ParticleLib](https://github.com/602723113/ParticleLib).
+ParticleLib-Minestom is a Minestom library based on a Bukkit Plugin [ParticleLib](https://github.com/602723113/ParticleLib).
 
 It is capable of 
 1. generating different shapes of particle effect.
