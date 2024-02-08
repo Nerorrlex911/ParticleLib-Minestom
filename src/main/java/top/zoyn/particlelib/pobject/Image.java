@@ -1,6 +1,6 @@
 package top.zoyn.particlelib.pobject;
 
-import org.bukkit.Location;
+import net.minestom.server.coordinate.Pos;
 
 import javax.imageio.ImageIO;
 import java.awt.*;
@@ -20,7 +20,7 @@ public class Image extends ParticleObject {
 
     private BufferedImage bufferedImage;
 
-    public Image(Location origin, File imageFile, int step, double scale) {
+    public Image(Pos origin, File imageFile, int step, double scale) {
         setOrigin(origin);
         this.imageFile = imageFile;
         this.imageUrl = imageFile.getAbsolutePath();
@@ -43,7 +43,7 @@ public class Image extends ParticleObject {
     }
 
     @Override
-    public List<Location> calculateLocations() {
+    public List<Pos> calculateLocations() {
         return null;
     }
 
@@ -64,16 +64,16 @@ public class Image extends ParticleObject {
                     double xi = (i - width / 2) / scale;
                     double yi = (j - height / 2) / scale;
 
-                    Location spawnLocation = getOrigin().clone().add(xi, 0, yi);
-                    spawnColorParticle(spawnLocation, r, g, b);
+                    Pos spawnPos = getOrigin().add(xi, 0, yi);
+                    spawnColorParticle(spawnPos, r, g, b);
                 } else {
                     // 灰度值判断
                     if (isBlack(r, g, b)) {
                         double xi = (i - width / 2) / 16;
                         double yi = (j - height / 2) / 16;
 
-                        Location spawnLocation = getOrigin().clone().add(xi, 0, yi);
-                        spawnColorParticle(spawnLocation, r, g, b);
+                        Pos spawnPos = getOrigin().add(xi, 0, yi);
+                        spawnColorParticle(spawnPos, r, g, b);
                     }
                 }
             }

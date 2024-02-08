@@ -1,6 +1,6 @@
 package top.zoyn.particlelib.utils.coordinate;
 
-import org.bukkit.Location;
+import net.minestom.server.coordinate.Pos;
 import top.zoyn.particlelib.utils.LocationUtils;
 
 /**
@@ -11,22 +11,22 @@ import top.zoyn.particlelib.utils.LocationUtils;
  */
 public class PlayerBackCoordinate implements Coordinate {
 
-    private final Location originDot;
+    private final Pos originDot;
     private final double rotateAngle;
 
-    public PlayerBackCoordinate(Location playerLocation) {
+    public PlayerBackCoordinate(Pos playerPos) {
         // 旋转的角度
-        rotateAngle = playerLocation.getYaw();
-        originDot = playerLocation.clone();
+        rotateAngle = playerPos.yaw();
+        originDot = playerPos;
         // 重设仰俯角
-        originDot.setPitch(0);
+        originDot.withPitch(0);
         // 使原点与玩家有一点点距离
-        originDot.add(originDot.getDirection().multiply(-0.3));
+        originDot.add(originDot.direction().mul(-0.3));
     }
 
     @Override
-    public Location newLocation(double x, double y, double z) {
-        return LocationUtils.rotateLocationAboutPoint(originDot.clone().add(-x, y, z), rotateAngle, originDot);
+    public Pos newLocation(double x, double y, double z) {
+        return LocationUtils.rotateLocationAboutPoint(originDot.add(-x, y, z), rotateAngle, originDot);
     }
 
 }

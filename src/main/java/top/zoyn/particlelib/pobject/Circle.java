@@ -1,6 +1,6 @@
 package top.zoyn.particlelib.pobject;
 
-import org.bukkit.Location;
+import net.minestom.server.coordinate.Pos;
 
 /**
  * 表示一个圆
@@ -9,11 +9,11 @@ import org.bukkit.Location;
  */
 public class Circle extends Arc {
 
-    public Circle(Location origin) {
+    public Circle(Pos origin) {
         this(origin, 1);
     }
 
-    public Circle(Location origin, double radius) {
+    public Circle(Pos origin, double radius) {
         this(origin, radius, 1);
     }
 
@@ -24,7 +24,7 @@ public class Circle extends Arc {
      * @param radius 圆的半径
      * @param step   每个粒子的间隔(也即步长)
      */
-    public Circle(Location origin, double radius, double step) {
+    public Circle(Pos origin, double radius, double step) {
         this(origin, radius, step, 20L);
     }
 
@@ -36,7 +36,7 @@ public class Circle extends Arc {
      * @param step   每个粒子的间隔(也即步长)
      * @param period 特效周期(如果需要可以使用)
      */
-    public Circle(Location origin, double radius, double step, long period) {
+    public Circle(Pos origin, double radius, double step, long period) {
         // Circle只需要控制这个fullArc就可以满足所有的要求
         super(origin, 0D, 360D, radius, step, period);
     }

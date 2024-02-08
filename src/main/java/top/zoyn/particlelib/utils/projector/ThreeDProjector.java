@@ -1,7 +1,7 @@
 package top.zoyn.particlelib.utils.projector;
 
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 
 /**
  * 表示一个三维至三维投影器
@@ -12,27 +12,27 @@ import org.bukkit.util.Vector;
  */
 public class ThreeDProjector {
 
-    private final Location origin;
-    private final Vector n1;
-    private final Vector n2;
-    private final Vector n3;
+    private final Pos origin;
+    private final Vec n1;
+    private final Vec n2;
+    private final Vec n3;
 
     /**
      * @param origin 投影的原点
      * @param n      投影屏幕的法向量
      */
-    public ThreeDProjector(Location origin, Vector n) {
+    public ThreeDProjector(Pos origin, Vec n) {
         this.origin = origin;
-        Vector t = n.clone();
-        t.setY(t.getY() + 1);
-        this.n1 = n.clone().crossProduct(t).normalize();
-        this.n2 = n1.clone().crossProduct(n).normalize();
-        this.n3 = n.clone().normalize();
+        Vec t = n;
+        t.withY(t.y() + 1);
+        this.n1 = n.cross(t).normalize();
+        this.n2 = n1.cross(n).normalize();
+        this.n3 = n.normalize();
     }
 
-    public Location apply(double x, double y, double z) {
-        Vector r = n1.clone().multiply(x).add(n2.clone().multiply(z)).add(n3.clone().multiply(y));
-        return origin.clone().add(r);
+    public Pos apply(double x, double y, double z) {
+        Vec r = n1.mul(x).add(n2.mul(z)).add(n3.mul(y));
+        return origin.add(r);
     }
 
 }

@@ -1,8 +1,8 @@
 package top.zoyn.particlelib.pobject;
 
-import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
 
 import java.util.ArrayList;
@@ -28,7 +28,7 @@ public class FilledCircle extends ParticleObject implements Playable {
      * @param radius 半径大小
      * @param sample 粒子数量
      */
-    public FilledCircle(Location origin, double radius, int sample) {
+    public FilledCircle(Pos origin, double radius, int sample) {
         setOrigin(origin);
         this.radius = radius;
         this.sample = sample;
@@ -45,14 +45,14 @@ public class FilledCircle extends ParticleObject implements Playable {
             double x = radius * r * Math.cos(theta);
             double z = radius * r * Math.sin(theta);
 
-            Location spawnLocation = getOrigin().clone().add(x, 0, z);
-            spawnParticle(spawnLocation);
+            Pos spawnPos = getOrigin().add(x, 0, z);
+            spawnParticle(spawnPos);
         }
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> locations = new ArrayList<>();
+    public List<Pos> calculateLocations() {
+        List<Pos> pos = new ArrayList<>();
         for (int i = 0; i < sample; i++) {
             double indices = i + 0.5;
             double r = Math.sqrt(indices / sample);
@@ -60,20 +60,20 @@ public class FilledCircle extends ParticleObject implements Playable {
             double x = radius * r * Math.cos(theta);
             double z = radius * r * Math.sin(theta);
 
-            Location showLocation = getOrigin().clone().add(x, 0, z);
+            Pos showPos = getOrigin().add(x, 0, z);
             if (hasMatrix()) {
-                Vector vector = new Vector(x, 0 ,z);
-                Vector changed = getMatrix().applyVector(vector);
+                Vec vec = new Vec(x, 0 ,z);
+                Vec changed = getMatrix().applyVector(vec);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            locations.add(showLocation);
-//            Location spawnLocation = getOrigin().clone().add(x, 0, z);
-//            locations.add(spawnLocation);
+            showPos = showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            pos.add(showPos);
+//            Pos spawnLocation = getOrigin().add(x, 0, z);
+//            pos.add(spawnLocation);
         }
-        return locations;
+        return pos;
     }
 
     /**
@@ -83,8 +83,8 @@ public class FilledCircle extends ParticleObject implements Playable {
      * @param count  个数
      * @return 粒子播放的点
      */
-    public List<Location> calculateLocations(Location origin, long count) {
-        List<Location> locations = new ArrayList<>();
+    public List<Pos> calculateLocations(Pos origin, long count) {
+        List<Pos> pos = new ArrayList<>();
         for (int i = 0; i < count; i++) {
             double indices = i + 0.5;
             double r = Math.sqrt(indices / count);
@@ -92,15 +92,15 @@ public class FilledCircle extends ParticleObject implements Playable {
             double x = radius * r * Math.cos(theta);
             double z = radius * r * Math.sin(theta);
 
-            Location spawnLocation = origin.clone().add(x, 0, z);
-            locations.add(spawnLocation);
+            Pos spawnPos = origin.add(x, 0, z);
+            pos.add(spawnPos);
         }
-        return locations;
+        return pos;
     }
 
     @Override
     public void play() {
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             @Override
             public void run() {
                 if (currentCount > sample) {
@@ -114,7 +114,7 @@ public class FilledCircle extends ParticleObject implements Playable {
                 double x = radius * r * Math.cos(theta);
                 double z = radius * r * Math.sin(theta);
 
-                spawnParticle(getOrigin().clone().add(x, 0, z));
+                spawnParticle(getOrigin().add(x, 0, z));
             }
         }.runTaskTimer(ParticleLib.getInstance(), 0, getPeriod());
     }
@@ -128,7 +128,7 @@ public class FilledCircle extends ParticleObject implements Playable {
         double x = radius * r * Math.cos(theta);
         double z = radius * r * Math.sin(theta);
 
-        spawnParticle(getOrigin().clone().add(x, 0, z));
+        spawnParticle(getOrigin().add(x, 0, z));
 
         // 进行重置
         if (currentCount > sample) {
@@ -151,13 +151,13 @@ public class FilledCircle extends ParticleObject implements Playable {
                 double x = radius * r * Math.cos(theta);
                 double z = radius * r * Math.sin(theta);
 
-                Location spawnLocation = getOrigin().clone().add(x, 0, z);
-                spawnParticle(spawnLocation);
+                Pos spawnPos = getOrigin().add(x, 0, z);
+                spawnParticle(spawnPos);
             }
             return;
         }
 
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             // 这里用来计量当前要播放的粒子是第几个tick, 也可说是帧数
             int frame = 0;
             int sample = 0;
@@ -179,8 +179,8 @@ public class FilledCircle extends ParticleObject implements Playable {
                     double z = radius * r * Math.sin(theta);
 
 
-                    Location spawnLocation = getOrigin().clone().add(x, 0, z);
-                    spawnParticle(spawnLocation);
+                    Pos spawnPos = getOrigin().add(x, 0, z);
+                    spawnParticle(spawnPos);
                 }
                 sample += frameTick;
             }

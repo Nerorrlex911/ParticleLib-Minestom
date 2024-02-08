@@ -1,7 +1,7 @@
 package top.zoyn.particlelib.utils.matrix;
 
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.utils.VectorUtils;
 
 import java.util.Arrays;
@@ -200,47 +200,47 @@ public class Matrix {
     /**
      * 将本矩阵的变换作用至给定的坐标上
      *
-     * @param location 给定的坐标
+     * @param pos 给定的坐标
      * @param origin   原点坐标 用于确定变换的原点
-     * @return {@link Location}
+     * @return {@link Pos}
      */
-    public Location applyLocation(Location location, Location origin) {
-        Vector vector = VectorUtils.createVector(origin, location);
-        return origin.clone().add(applyVector(vector));
+    public Pos applyLocation(Pos pos, Pos origin) {
+        Vec vec = VectorUtils.createVector(origin, pos);
+        return origin.add(applyVector(vec));
     }
 
     /**
      * 将本矩阵的变换作用至给定的向量上
      *
-     * @param vector 给定的向量
-     * @return {@link Location}
+     * @param vec 给定的向量
+     * @return {@link Pos}
      */
-    public Vector applyVector(Vector vector) {
+    public Vec applyVector(Vec vec) {
         if (getRow() == 2 && getColumn() == 2) {
-            return applyIn2DVector(vector);
+            return applyIn2DVector(vec);
         } else if (getRow() == 3 && getColumn() == 3) {
-            return applyIn3DVector(vector);
+            return applyIn3DVector(vec);
         }
 
         throw new IllegalArgumentException("当前矩阵非 2*2 或 3*3 的方阵");
     }
 
-    private Vector applyIn2DVector(Vector vector) {
-        double x = vector.getX();
-        double z = vector.getZ();
+    private Vec applyIn2DVector(Vec vec) {
+        double x = vec.x();
+        double z = vec.z();
         double ax = getAsArray()[0][0] * x;
         double ay = getAsArray()[0][1] * z;
 
         double bx = getAsArray()[1][0] * x;
         double by = getAsArray()[1][1] * z;
 
-        return new Vector(ax + ay, vector.getY(), bx + by);
+        return new Vec(ax + ay, vec.y(), bx + by);
     }
 
-    private Vector applyIn3DVector(Vector vector) {
-        double x = vector.getX();
-        double y = vector.getY();
-        double z = vector.getZ();
+    private Vec applyIn3DVector(Vec vec) {
+        double x = vec.x();
+        double y = vec.y();
+        double z = vec.z();
 
         double ax = getAsArray()[0][0] * x;
         double ay = getAsArray()[0][1] * y;
@@ -254,7 +254,7 @@ public class Matrix {
         double cy = getAsArray()[2][1] * y;
         double cz = getAsArray()[2][2] * z;
 
-        return new Vector(ax + ay + az, bx + by + bz, cx + cy + cz);
+        return new Vec(ax + ay + az, bx + by + bz, cx + cy + cz);
     }
 
 }

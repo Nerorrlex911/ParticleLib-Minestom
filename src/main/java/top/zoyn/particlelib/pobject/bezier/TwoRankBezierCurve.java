@@ -1,9 +1,9 @@
 package top.zoyn.particlelib.pobject.bezier;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
 import top.zoyn.particlelib.pobject.ParticleObject;
 import top.zoyn.particlelib.pobject.Playable;
@@ -20,14 +20,14 @@ import java.util.stream.Collectors;
  */
 public class TwoRankBezierCurve extends ParticleObject implements Playable {
 
-    private final List<Location> locations;
-    private Location p0;
-    private Location p1;
-    private Location p2;
+    private final List<Pos> pos;
+    private Pos p0;
+    private Pos p1;
+    private Pos p2;
     private double step;
     private int currentSample = 0;
 
-    public TwoRankBezierCurve(Location p0, Location p1, Location p2) {
+    public TwoRankBezierCurve(Pos p0, Pos p1, Pos p2) {
         this(p0, p1, p2, 0.05);
     }
 
@@ -39,47 +39,47 @@ public class TwoRankBezierCurve extends ParticleObject implements Playable {
      * @param p2   控制点
      * @param step 每个粒子的间隔(也即步长)
      */
-    public TwoRankBezierCurve(Location p0, Location p1, Location p2, double step) {
+    public TwoRankBezierCurve(Pos p0, Pos p1, Pos p2, double step) {
         this.p0 = p0;
         this.p1 = p1;
         this.p2 = p2;
         this.step = step;
-        locations = new ArrayList<>();
+        pos = new ArrayList<>();
 
         resetLocations();
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         for (double t = 0; t < 1; t += step) {
-            Vector v1 = p1.clone().subtract(p0).toVector();
-            Location t1 = p0.clone().add(v1.multiply(t));
-            Vector v2 = p2.clone().subtract(p1).toVector();
-            Location t2 = p1.clone().add(v2.multiply(t));
+            Vec v1 = p1.sub(p0).asVec();
+            Pos t1 = p0.add(v1.mul(t));
+            Vec v2 = p2.sub(p1).asVec();
+            Pos t2 = p1.add(v2.mul(t));
 
-            Vector v3 = t2.clone().subtract(t1).toVector();
-            Location destination = t1.clone().add(v3.multiply(t));
-            points.add(destination.clone());
+            Vec v3 = t2.sub(t1).asVec();
+            Pos destination = t1.add(v3.mul(t));
+            points.add(destination);
         }
         // 做一个对 Matrix 和 Increment 的兼容
         return points.stream().map(location -> {
-            Location showLocation = location;
+            Pos showPos = location;
             if (hasMatrix()) {
-                Vector v = new Vector(location.getX() - getOrigin().getX(), location.getY() - getOrigin().getY(), location.getZ() - getOrigin().getZ());
-                Vector changed = getMatrix().applyVector(v);
+                Vec v = new Vec(location.x() - getOrigin().x(), location.y() - getOrigin().y(), location.z() - getOrigin().z());
+                Vec changed = getMatrix().applyVector(v);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            return showLocation;
+            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            return showPos;
         }).collect(Collectors.toList());
     }
 
     @Override
     public void show() {
-        locations.forEach(loc -> {
+        pos.forEach(loc -> {
             if (loc != null) {
                 spawnParticle(loc);
             }
@@ -88,55 +88,55 @@ public class TwoRankBezierCurve extends ParticleObject implements Playable {
 
     @Override
     public void play() {
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             @Override
             public void run() {
                 // 进行关闭
-                if (currentSample + 1 == locations.size()) {
+                if (currentSample + 1 == pos.size()) {
                     cancel();
                     return;
                 }
                 currentSample++;
 
-                spawnParticle(locations.get(currentSample));
+                spawnParticle(pos.get(currentSample));
             }
         }.runTaskTimer(ParticleLib.getInstance(), 0, getPeriod());
     }
 
     @Override
     public void playNextPoint() {
-        if (currentSample + 1 == locations.size()) {
+        if (currentSample + 1 == pos.size()) {
             currentSample = 0;
         }
-        spawnParticle(locations.get(currentSample));
+        spawnParticle(pos.get(currentSample));
         currentSample++;
     }
 
-    public Location getP0() {
+    public Pos getP0() {
         return p0;
     }
 
-    public TwoRankBezierCurve setP0(Location p0) {
+    public TwoRankBezierCurve setP0(Pos p0) {
         this.p0 = p0;
         resetLocations();
         return this;
     }
 
-    public Location getP1() {
+    public Pos getP1() {
         return p1;
     }
 
-    public TwoRankBezierCurve setP1(Location p1) {
+    public TwoRankBezierCurve setP1(Pos p1) {
         this.p1 = p1;
         resetLocations();
         return this;
     }
 
-    public Location getP2() {
+    public Pos getP2() {
         return p2;
     }
 
-    public TwoRankBezierCurve setP2(Location p2) {
+    public TwoRankBezierCurve setP2(Pos p2) {
         this.p2 = p2;
         resetLocations();
         return this;
@@ -156,18 +156,18 @@ public class TwoRankBezierCurve extends ParticleObject implements Playable {
      * 重新计算贝塞尔曲线上的点
      */
     public void resetLocations() {
-        locations.clear();
+        pos.clear();
         // 算法
         // 算了我知道很蠢这个算法...
         for (double t = 0; t < 1; t += step) {
-            Vector v1 = p1.clone().subtract(p0).toVector();
-            Location t1 = p0.clone().add(v1.multiply(t));
-            Vector v2 = p2.clone().subtract(p1).toVector();
-            Location t2 = p1.clone().add(v2.multiply(t));
+            Vec v1 = p1.sub(p0).asVec();
+            Pos t1 = p0.add(v1.mul(t));
+            Vec v2 = p2.sub(p1).asVec();
+            Pos t2 = p1.add(v2.mul(t));
 
-            Vector v3 = t2.clone().subtract(t1).toVector();
-            Location destination = t1.clone().add(v3.multiply(t));
-            locations.add(destination.clone());
+            Vec v3 = t2.sub(t1).asVec();
+            Pos destination = t1.add(v3.mul(t));
+            pos.add(destination);
         }
     }
 

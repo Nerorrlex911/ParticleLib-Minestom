@@ -1,8 +1,8 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 
 import java.util.List;
 import java.util.stream.Collectors;
@@ -10,33 +10,33 @@ import java.util.stream.Collectors;
 public class Grid extends ParticleObject {
 
     private final double gridLength;
-    private Location minimumLocation;
-    private Location maximumLocation;
+    private Pos minimumPos;
+    private Pos maximumPos;
     private boolean isXDimension = false;
     private boolean isYDimension = false;
 
-    public Grid(Location minimumLocation, Location maximumLocation) {
-        this(minimumLocation, maximumLocation, 1.2D);
+    public Grid(Pos minimumPos, Pos maximumPos) {
+        this(minimumPos, maximumPos, 1.2D);
     }
 
-    public Grid(Location minimumLocation, Location maximumLocation, double gridLength) {
-        this.minimumLocation = minimumLocation;
-        this.maximumLocation = maximumLocation;
+    public Grid(Pos minimumPos, Pos maximumPos, double gridLength) {
+        this.minimumPos = minimumPos;
+        this.maximumPos = maximumPos;
         // 平面检查
-        if (minimumLocation.getBlockX() != maximumLocation.getBlockX()) {
-            if (minimumLocation.getBlockZ() != maximumLocation.getBlockZ()) {
-                if (minimumLocation.getBlockY() != maximumLocation.getBlockY()) {
+        if (minimumPos.getBlockX() != maximumPos.getBlockX()) {
+            if (minimumPos.getBlockZ() != maximumPos.getBlockZ()) {
+                if (minimumPos.getBlockY() != maximumPos.getBlockY()) {
                     throw new IllegalArgumentException("请将两点设定在X平面, Y平面或Z平面上(即一个方块的面上)");
                 }
             }
         }
-        if (minimumLocation.getBlockX() == maximumLocation.getBlockX()) {
+        if (minimumPos.getBlockX() == maximumPos.getBlockX()) {
             isXDimension = false;
         }
-        if (minimumLocation.getBlockY() == maximumLocation.getBlockY()) {
+        if (minimumPos.getBlockY() == maximumPos.getBlockY()) {
             isYDimension = true;
         }
-        if (minimumLocation.getBlockZ() == maximumLocation.getBlockZ()) {
+        if (minimumPos.getBlockZ() == maximumPos.getBlockZ()) {
             isXDimension = true;
         }
 
@@ -44,25 +44,25 @@ public class Grid extends ParticleObject {
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         // 为防止给定的最小和最高点出现反向的情况, 这里做了个查找操作
-        Location minLocation = findMinimumLocation();
-        Location maxLocation = findMaximumLocation();
+        Pos minPos = findMinimumLocation();
+        Pos maxPos = findMaximumLocation();
 
         double height;
         double width;
 
         // 在Y平面下有点不一样
         if (isYDimension) {
-            height = Math.abs(minLocation.getX() - maxLocation.getX());
-            width = Math.abs(minLocation.getZ() - maxLocation.getZ());
+            height = Math.abs(minPos.x() - maxPos.x());
+            width = Math.abs(minPos.z() - maxPos.z());
         } else {
-            height = Math.abs(maximumLocation.getY() - minimumLocation.getY());
+            height = Math.abs(maximumPos.y() - minimumPos.y());
             if (isXDimension) {
-                width = Math.abs(maximumLocation.getX() - minimumLocation.getX());
+                width = Math.abs(maximumPos.x() - minimumPos.x());
             } else {
-                width = Math.abs(maximumLocation.getZ() - minimumLocation.getZ());
+                width = Math.abs(maximumPos.z() - minimumPos.z());
             }
         }
         int heightSideLine = (int) (height / gridLength);
@@ -70,87 +70,87 @@ public class Grid extends ParticleObject {
 
         if (isYDimension) {
             for (int i = 1; i <= heightSideLine; i++) {
-                Vector vector = maxLocation.clone().subtract(minLocation).toVector();
-                vector.setZ(0).normalize();
+                Vec vec = maxPos.sub(minPos).asVec();
+                vec.withZ(0).normalize();
 
-                Location start = minLocation.clone().add(0, 0, i * gridLength);
+                Pos start = minPos.add(0, 0, i * gridLength);
                 for (double j = 0; j < width; j += 0.2) {
-                    points.add(start.clone().add(vector.clone().multiply(j)));
+                    points.add(start.add(vec.mul(j)));
                 }
             }
 
             for (int i = 1; i <= widthSideLine; i++) {
-                Vector vector = maxLocation.clone().subtract(minLocation).toVector();
-                vector.setX(0).normalize();
-                Location start = minLocation.clone().add(i * gridLength, 0, 0);
+                Vec vec = maxPos.sub(minPos).asVec();
+                vec.withX(0).normalize();
+                Pos start = minPos.add(i * gridLength, 0, 0);
 
                 for (double j = 0; j < height; j += 0.2) {
-                    points.add(start.clone().add(vector.clone().multiply(j)));
+                    points.add(start.add(vec.mul(j)));
                 }
             }
             return points;
         }
 
         for (int i = 1; i <= heightSideLine; i++) {
-            Vector vector = maxLocation.clone().subtract(minLocation).toVector();
-            vector.setY(0).normalize();
+            Vec vec = maxPos.sub(minPos).asVec();
+            vec.withY(0).normalize();
 
-            Location start = minLocation.clone().add(0, i * gridLength, 0);
+            Pos start = minPos.add(0, i * gridLength, 0);
             for (double j = 0; j < width; j += 0.2) {
-                points.add(start.clone().add(vector.clone().multiply(j)));
+                points.add(start.add(vec.mul(j)));
             }
         }
 
         for (int i = 1; i <= widthSideLine; i++) {
-            Vector vector = maxLocation.clone().subtract(minLocation).toVector();
-            Location start;
+            Vec vec = maxPos.sub(minPos).asVec();
+            Pos start;
             if (isXDimension) {
-                vector.setX(0).normalize();
-                start = minLocation.clone().add(i * gridLength, 0, 0);
+                vec.withX(0).normalize();
+                start = minPos.add(i * gridLength, 0, 0);
             } else {
-                vector.setZ(0).normalize();
-                start = minLocation.clone().add(0, 0, i * gridLength);
+                vec.withZ(0).normalize();
+                start = minPos.add(0, 0, i * gridLength);
             }
 
             for (double j = 0; j < height; j += 0.2) {
-                points.add(start.clone().add(vector.clone().multiply(j)));
+                points.add(start.add(vec.mul(j)));
             }
         }
 
         // 做一个对 Matrix 和 Increment 的兼容
         return points.stream().map(location -> {
-            Location showLocation = location;
+            Pos showPos = location;
             if (hasMatrix()) {
-                Vector v = new Vector(location.getX() - getOrigin().getX(), location.getY() - getOrigin().getY(), location.getZ() - getOrigin().getZ());
-                Vector changed = getMatrix().applyVector(v);
+                Vec v = new Vec(location.x() - getOrigin().x(), location.y() - getOrigin().y(), location.z() - getOrigin().z());
+                Vec changed = getMatrix().applyVector(v);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            return showLocation;
+            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            return showPos;
         }).collect(Collectors.toList());
     }
 
     @Override
     public void show() {
         // 为防止给定的最小和最高点出现反向的情况, 这里做了个查找操作
-        Location minLocation = findMinimumLocation();
-        Location maxLocation = findMaximumLocation();
+        Pos minPos = findMinimumLocation();
+        Pos maxPos = findMaximumLocation();
 
         double height;
         double width;
 
         // 在Y平面下有点不一样
         if (isYDimension) {
-            height = Math.abs(minLocation.getX() - maxLocation.getX());
-            width = Math.abs(minLocation.getZ() - maxLocation.getZ());
+            height = Math.abs(minPos.x() - maxPos.x());
+            width = Math.abs(minPos.z() - maxPos.z());
         } else {
-            height = Math.abs(maximumLocation.getY() - minimumLocation.getY());
+            height = Math.abs(maximumPos.y() - minimumPos.y());
             if (isXDimension) {
-                width = Math.abs(maximumLocation.getX() - minimumLocation.getX());
+                width = Math.abs(maximumPos.x() - minimumPos.x());
             } else {
-                width = Math.abs(maximumLocation.getZ() - minimumLocation.getZ());
+                width = Math.abs(maximumPos.z() - minimumPos.z());
             }
         }
         int heightSideLine = (int) (height / gridLength);
@@ -158,85 +158,85 @@ public class Grid extends ParticleObject {
 
         if (isYDimension) {
             for (int i = 1; i <= heightSideLine; i++) {
-                Vector vector = maxLocation.clone().subtract(minLocation).toVector();
-                vector.setZ(0).normalize();
+                Vec vec = maxPos.sub(minPos).asVec();
+                vec.withZ(0).normalize();
 
-                Location start = minLocation.clone().add(0, 0, i * gridLength);
+                Pos start = minPos.add(0, 0, i * gridLength);
                 for (double j = 0; j < width; j += 0.2) {
-                    spawnParticle(start.clone().add(vector.clone().multiply(j)));
+                    spawnParticle(start.add(vec.mul(j)));
 
                 }
             }
 
             for (int i = 1; i <= widthSideLine; i++) {
-                Vector vector = maxLocation.clone().subtract(minLocation).toVector();
-                vector.setX(0).normalize();
-                Location start = minLocation.clone().add(i * gridLength, 0, 0);
+                Vec vec = maxPos.sub(minPos).asVec();
+                vec.withX(0).normalize();
+                Pos start = minPos.add(i * gridLength, 0, 0);
 
                 for (double j = 0; j < height; j += 0.2) {
-                    spawnParticle(start.clone().add(vector.clone().multiply(j)));
+                    spawnParticle(start.add(vec.mul(j)));
                 }
             }
             return;
         }
 
         for (int i = 1; i <= heightSideLine; i++) {
-            Vector vector = maxLocation.clone().subtract(minLocation).toVector();
-            vector.setY(0).normalize();
+            Vec vec = maxPos.sub(minPos).asVec();
+            vec.withY(0).normalize();
 
-            Location start = minLocation.clone().add(0, i * gridLength, 0);
+            Pos start = minPos.add(0, i * gridLength, 0);
             for (double j = 0; j < width; j += 0.2) {
-                spawnParticle(start.clone().add(vector.clone().multiply(j)));
+                spawnParticle(start.add(vec.mul(j)));
             }
         }
 
         for (int i = 1; i <= widthSideLine; i++) {
-            Vector vector = maxLocation.clone().subtract(minLocation).toVector();
-            Location start;
+            Vec vec = maxPos.sub(minPos).asVec();
+            Pos start;
             if (isXDimension) {
-                vector.setX(0).normalize();
-                start = minLocation.clone().add(i * gridLength, 0, 0);
+                vec.withX(0).normalize();
+                start = minPos.add(i * gridLength, 0, 0);
             } else {
-                vector.setZ(0).normalize();
-                start = minLocation.clone().add(0, 0, i * gridLength);
+                vec.withZ(0).normalize();
+                start = minPos.add(0, 0, i * gridLength);
             }
 
             for (double j = 0; j < height; j += 0.2) {
-                spawnParticle(start.clone().add(vector.clone().multiply(j)));
+                spawnParticle(start.add(vec.mul(j)));
             }
         }
     }
 
-    private Location findMinimumLocation() {
-        double minX = Math.min(minimumLocation.getX(), maximumLocation.getX());
-        double minY = Math.min(minimumLocation.getY(), maximumLocation.getY());
-        double minZ = Math.min(minimumLocation.getZ(), maximumLocation.getZ());
+    private Pos findMinimumLocation() {
+        double minX = Math.min(minimumPos.x(), maximumPos.x());
+        double minY = Math.min(minimumPos.y(), maximumPos.y());
+        double minZ = Math.min(minimumPos.z(), maximumPos.z());
 
-        return new Location(minimumLocation.getWorld(), minX, minY, minZ);
+        return new Pos(minimumPos.getWorld(), minX, minY, minZ);
     }
 
-    private Location findMaximumLocation() {
-        double maxX = Math.max(minimumLocation.getX(), maximumLocation.getX());
-        double maxY = Math.max(minimumLocation.getY(), maximumLocation.getY());
-        double maxZ = Math.max(minimumLocation.getZ(), maximumLocation.getZ());
+    private Pos findMaximumLocation() {
+        double maxX = Math.max(minimumPos.x(), maximumPos.x());
+        double maxY = Math.max(minimumPos.y(), maximumPos.y());
+        double maxZ = Math.max(minimumPos.z(), maximumPos.z());
 
-        return new Location(minimumLocation.getWorld(), maxX, maxY, maxZ);
+        return new Pos(minimumPos.getWorld(), maxX, maxY, maxZ);
     }
 
-    public Location getMinimumLocation() {
-        return minimumLocation;
+    public Pos getMinimumLocation() {
+        return minimumPos;
     }
 
-    public void setMinimumLocation(Location minimumLocation) {
-        this.minimumLocation = minimumLocation;
+    public void setMinimumLocation(Pos minimumPos) {
+        this.minimumPos = minimumPos;
     }
 
-    public Location getMaximumLocation() {
-        return maximumLocation;
+    public Pos getMaximumLocation() {
+        return maximumPos;
     }
 
-    public void setMaximumLocation(Location maximumLocation) {
-        this.maximumLocation = maximumLocation;
+    public void setMaximumLocation(Pos maximumPos) {
+        this.maximumPos = maximumPos;
     }
 
 }

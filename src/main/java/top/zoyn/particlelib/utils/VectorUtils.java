@@ -1,7 +1,7 @@
 package top.zoyn.particlelib.utils;
 
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 
 /**
  * 向量工具类
@@ -15,59 +15,59 @@ public class VectorUtils {
      *
      * @param start 起点
      * @param end   终点
-     * @return {@link Vector}
+     * @return {@link Vec}
      */
-    public static Vector createVector(Location start, Location end) {
-        return new Vector(end.getX() - start.getX(), end.getY() - start.getY(), end.getZ() - start.getZ());
+    public static Vec createVector(Pos start, Pos end) {
+        return new Vec(end.x() - start.x(), end.y() - start.y(), end.z() - start.z());
     }
 
-    public static Vector getLeftDirection(Location location) {
-        return rotateAroundAxisY(location.getDirection().clone(), 90);
+    public static Vec getLeftDirection(Pos pos) {
+        return rotateAroundAxisY(pos.direction(), 90);
     }
 
-    public static Vector getRightDirection(Location location) {
-        return rotateAroundAxisY(location.getDirection().clone(), -90);
+    public static Vec getRightDirection(Pos pos) {
+        return rotateAroundAxisY(pos.direction(), -90);
     }
 
     /**
      * 得到一个单位为 1 的向上的向量
      *
-     * @return {@link Vector}
+     * @return {@link Vec}
      */
-    public static Vector getUpVector() {
+    public static Vec getUpVector() {
         return getUpVector(1);
     }
 
-    public static Vector getUpVector(double multiply) {
-        return new Vector(0, 1, 0).multiply(multiply);
+    public static Vec getUpVector(double multiply) {
+        return new Vec(0, 1, 0).mul(multiply);
     }
 
-    public static Vector rotateAroundAxisX(Vector v, double angle) {
+    public static Vec rotateAroundAxisX(Vec v, double angle) {
         angle = Math.toRadians(angle);
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);
-        double y = v.getY() * cos - v.getZ() * sin;
-        double z = v.getY() * sin + v.getZ() * cos;
-        return v.setY(y).setZ(z);
+        double y = v.y() * cos - v.z() * sin;
+        double z = v.y() * sin + v.z() * cos;
+        return v.withY(y).withZ(z);
     }
 
-    public static Vector rotateAroundAxisY(Vector v, double angle) {
+    public static Vec rotateAroundAxisY(Vec v, double angle) {
         angle = -angle;
         angle = Math.toRadians(angle);
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);
-        double x = v.getX() * cos + v.getZ() * sin;
-        double z = v.getX() * -sin + v.getZ() * cos;
-        return v.setX(x).setZ(z);
+        double x = v.x() * cos + v.z() * sin;
+        double z = v.x() * -sin + v.z() * cos;
+        return v.withX(x).withZ(z);
     }
 
-    public static Vector rotateAroundAxisZ(Vector v, double angle) {
+    public static Vec rotateAroundAxisZ(Vec v, double angle) {
         angle = Math.toRadians(angle);
         double cos = Math.cos(angle);
         double sin = Math.sin(angle);
-        double x = v.getX() * cos - v.getY() * sin;
-        double y = v.getX() * sin + v.getY() * cos;
-        return v.setX(x).setY(y);
+        double x = v.x() * cos - v.y() * sin;
+        double y = v.x() * sin + v.y() * cos;
+        return v.withX(x).withY(y);
     }
 
     /**
@@ -80,9 +80,9 @@ public class VectorUtils {
      * @param v            向量
      * @param yawDegrees   yaw的角度
      * @param pitchDegrees pitch的角度
-     * @return {@link Vector}
+     * @return {@link Vec}
      */
-    public static Vector rotateVector(Vector v, float yawDegrees, float pitchDegrees) {
+    public static Vec rotateVector(Vec v, float yawDegrees, float pitchDegrees) {
         double yaw = Math.toRadians(-1 * (yawDegrees + 90));
         double pitch = Math.toRadians(-pitchDegrees);
 
@@ -95,40 +95,40 @@ public class VectorUtils {
         double x, y, z;
 
         // Z_Axis rotation (Pitch)
-        initialX = v.getX();
-        initialY = v.getY();
+        initialX = v.x();
+        initialY = v.y();
         x = initialX * cosPitch - initialY * sinPitch;
         y = initialX * sinPitch + initialY * cosPitch;
 
         // Y_Axis rotation (Yaw)
-        initialZ = v.getZ();
+        initialZ = v.z();
         initialX = x;
         z = initialZ * cosYaw - initialX * sinYaw;
         x = initialZ * sinYaw + initialX * cosYaw;
 
-        return new Vector(x, y, z);
+        return new Vec(x, y, z);
     }
 
     /**
      * 判断一个向量是否已单位化
      *
-     * @param vector 向量
+     * @param vec 向量
      * @return 是否单位化
      */
-    public static boolean isNormalized(Vector vector) {
-        return Math.abs(vector.lengthSquared() - 1) < Vector.getEpsilon();
+    public static boolean isNormalized(Vec vec) {
+        return vec.isNormalized();
     }
 
     /**
      * 空间向量绕任一向量旋转
      *
-     * @param vector 待旋转向量
+     * @param vec 待旋转向量
      * @param axis   旋转轴向量
      * @param angle  旋转角度
-     * @return {@link Vector}
+     * @return {@link Vec}
      */
-    public static Vector rotateAroundAxis(Vector vector, Vector axis, double angle) {
-        return rotateAroundNonUnitAxis(vector, isNormalized(axis) ? axis : axis.clone().normalize(), angle);
+    public static Vec rotateAroundAxis(Vec vec, Vec axis, double angle) {
+        return rotateAroundNonUnitAxis(vec, isNormalized(axis) ? axis : axis.normalize(), angle);
     }
 
     /**
@@ -139,18 +139,18 @@ public class VectorUtils {
      * <p>
      * 正常人能看懂的: https://www.cnblogs.com/wubugui/p/3734627.html
      *
-     * @param vector 要旋转的向量
+     * @param vec 要旋转的向量
      * @param axis   旋转轴向量
      * @param angle  旋转角度
-     * @return {@link Vector}
+     * @return {@link Vec}
      */
-    public static Vector rotateAroundNonUnitAxis(Vector vector, Vector axis, double angle) {
-        double x = vector.getX(), y = vector.getY(), z = vector.getZ();
-        double x2 = axis.getX(), y2 = axis.getY(), z2 = axis.getZ();
+    public static Vec rotateAroundNonUnitAxis(Vec vec, Vec axis, double angle) {
+        double x = vec.x(), y = vec.y(), z = vec.z();
+        double x2 = axis.x(), y2 = axis.y(), z2 = axis.z();
 
         double cosTheta = Math.cos(angle);
         double sinTheta = Math.sin(angle);
-        double dotProduct = vector.dot(axis);
+        double dotProduct = vec.dot(axis);
 
         double xPrime = x2 * dotProduct * (1d - cosTheta)
                 + x * cosTheta
@@ -162,7 +162,7 @@ public class VectorUtils {
                 + z * cosTheta
                 + (-y2 * x + x2 * y) * sinTheta;
 
-        return vector.setX(xPrime).setY(yPrime).setZ(zPrime);
+        return vec.withX(xPrime).withY(yPrime).withZ(zPrime);
     }
 
 }

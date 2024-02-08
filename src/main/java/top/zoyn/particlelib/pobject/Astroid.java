@@ -1,9 +1,9 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
 
 import java.util.List;
@@ -25,7 +25,7 @@ public class Astroid extends ParticleObject implements Playable {
      *
      * @param origin 原点
      */
-    public Astroid(Location origin) {
+    public Astroid(Pos origin) {
         this(1D, origin);
     }
 
@@ -35,35 +35,35 @@ public class Astroid extends ParticleObject implements Playable {
      * @param radius 半径
      * @param origin 原点
      */
-    public Astroid(double radius, Location origin) {
+    public Astroid(double radius, Pos origin) {
         this(1D, origin, 10);
     }
 
-    public Astroid(double radius, Location origin, double step) {
+    public Astroid(double radius, Pos origin, double step) {
         this.radius = radius;
         this.step = step;
         setOrigin(origin);
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         for (double t = 0.0D; t < 360.0D; t += step) {
             double radians = Math.toRadians(t);
             // 计算公式
             double x = Math.pow(this.radius * Math.cos(radians), 3.0D);
             double z = Math.pow(this.radius * Math.sin(radians), 3.0D);
 
-            Location showLocation = getOrigin().clone().add(x, 0, z);
+            Pos showPos = getOrigin().add(x, 0, z);
             if (hasMatrix()) {
-                Vector vector = new Vector(x, 0, z);
-                Vector changed = getMatrix().applyVector(vector);
+                Vec vec = new Vec(x, 0, z);
+                Vec changed = getMatrix().applyVector(vec);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            points.add(showLocation);
+            showPos = showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            points.add(showPos);
         }
         return points;
     }
@@ -76,13 +76,13 @@ public class Astroid extends ParticleObject implements Playable {
             double x = Math.pow(this.radius * Math.cos(radians), 3.0D);
             double z = Math.pow(this.radius * Math.sin(radians), 3.0D);
 
-            spawnParticle(getOrigin().clone().add(x, 0, z));
+            spawnParticle(getOrigin().add(x, 0, z));
         }
     }
 
     @Override
     public void play() {
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             @Override
             public void run() {
                 // 重置
@@ -96,7 +96,7 @@ public class Astroid extends ParticleObject implements Playable {
                 double x = Math.pow(getRadius() * Math.cos(radians), 3.0D);
                 double z = Math.pow(getRadius() * Math.sin(radians), 3.0D);
 
-                spawnParticle(getOrigin().clone().add(x, 0, z));
+                spawnParticle(getOrigin().add(x, 0, z));
             }
         }.runTaskTimer(ParticleLib.getInstance(), 0, getPeriod());
     }
@@ -109,7 +109,7 @@ public class Astroid extends ParticleObject implements Playable {
         double x = Math.pow(this.radius * Math.cos(radians), 3.0D);
         double z = Math.pow(this.radius * Math.sin(radians), 3.0D);
 
-        spawnParticle(getOrigin().clone().add(x, 0, z));
+        spawnParticle(getOrigin().add(x, 0, z));
         // 重置
         if (currentT > 360D) {
             currentT = 0D;

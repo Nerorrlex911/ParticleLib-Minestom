@@ -1,8 +1,8 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.utils.LocationUtils;
 
 import java.util.List;
@@ -10,22 +10,22 @@ import java.util.stream.Collectors;
 
 public class Lotus extends ParticleObject {
 
-    public Lotus(Location origin) {
+    public Lotus(Pos origin) {
         setOrigin(origin);
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         // 外围花瓣
         for (double t = -0.15D; t <= 0.15D; t += 0.005D) {
             double x = 5 * Math.sin(t) * Math.cos(t) * Math.log(Math.abs(t));
             double y = 5 * Math.sqrt(Math.abs(t)) * Math.cos(t);
             y -= 5;
 
-            Location spawn = getOrigin().clone().add(x, 0, y);
+            Pos spawn = getOrigin().add(x, 0, y);
             for (int i = 0; i <= 8; i++) {
-                Location temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
+                Pos temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
                 points.add(temp);
             }
 
@@ -38,11 +38,11 @@ public class Lotus extends ParticleObject {
             double y = 3 * Math.sqrt(Math.abs(t)) * Math.cos(t);
             y -= 3.65;
 
-            Location spawn = getOrigin().clone().add(x, 0, y);
+            Pos spawn = getOrigin().add(x, 0, y);
             spawn = LocationUtils.rotateLocationAboutPoint(spawn, 22D, getOrigin());
 
             for (int i = 0; i <= 8; i++) {
-                Location temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
+                Pos temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
                 points.add(temp);
             }
 
@@ -55,11 +55,11 @@ public class Lotus extends ParticleObject {
             double y = 2 * Math.sqrt(Math.abs(t)) * Math.cos(t);
             y -= 4.6;
 
-            Location spawn = getOrigin().clone().add(x, 0, y);
+            Pos spawn = getOrigin().add(x, 0, y);
             spawn = LocationUtils.rotateLocationAboutPoint(spawn, 22D, getOrigin());
 
             for (int i = 0; i <= 8; i++) {
-                Location temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
+                Pos temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
                 points.add(temp);
             }
 
@@ -67,16 +67,16 @@ public class Lotus extends ParticleObject {
         }
         // 做一个对 Matrix 和 Increment 的兼容
         return points.stream().map(location -> {
-            Location showLocation = location;
+            Pos showPos = location;
             if (hasMatrix()) {
-                Vector v = new Vector(location.getX() - getOrigin().getX(), location.getY() - getOrigin().getY(), location.getZ() - getOrigin().getZ());
-                Vector changed = getMatrix().applyVector(v);
+                Vec v = new Vec(location.x() - getOrigin().x(), location.y() - getOrigin().y(), location.z() - getOrigin().z());
+                Vec changed = getMatrix().applyVector(v);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            return showLocation;
+            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            return showPos;
         }).collect(Collectors.toList());
     }
 
@@ -88,9 +88,9 @@ public class Lotus extends ParticleObject {
             double y = 5 * Math.sqrt(Math.abs(t)) * Math.cos(t);
             y -= 5;
 
-            Location spawn = getOrigin().clone().add(x, 0, y);
+            Pos spawn = getOrigin().add(x, 0, y);
             for (int i = 0; i <= 8; i++) {
-                Location temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
+                Pos temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
                 spawnParticle(temp);
             }
 
@@ -103,11 +103,11 @@ public class Lotus extends ParticleObject {
             double y = 3 * Math.sqrt(Math.abs(t)) * Math.cos(t);
             y -= 3.65;
 
-            Location spawn = getOrigin().clone().add(x, 0, y);
+            Pos spawn = getOrigin().add(x, 0, y);
             spawn = LocationUtils.rotateLocationAboutPoint(spawn, 22D, getOrigin());
 
             for (int i = 0; i <= 8; i++) {
-                Location temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
+                Pos temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
                 spawnParticle(temp);
             }
 
@@ -120,11 +120,11 @@ public class Lotus extends ParticleObject {
             double y = 2 * Math.sqrt(Math.abs(t)) * Math.cos(t);
             y -= 4.6;
 
-            Location spawn = getOrigin().clone().add(x, 0, y);
+            Pos spawn = getOrigin().add(x, 0, y);
             spawn = LocationUtils.rotateLocationAboutPoint(spawn, 22D, getOrigin());
 
             for (int i = 0; i <= 8; i++) {
-                Location temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
+                Pos temp = LocationUtils.rotateLocationAboutPoint(spawn, 360D / 8D * i, getOrigin());
                 spawnParticle(temp);
             }
 

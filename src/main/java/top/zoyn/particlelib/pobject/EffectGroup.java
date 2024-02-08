@@ -1,16 +1,19 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.entity.Entity;
+
+import net.minestom.server.color.Color;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.particle.Particle;
+import net.minestom.server.utils.binary.BinaryWriter;
+import net.minestom.server.entity.Entity;
 import top.zoyn.particlelib.utils.matrix.Matrix;
 import top.zoyn.particlelib.utils.matrix.Matrixs;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**
@@ -68,7 +71,7 @@ public class EffectGroup {
         return this;
     }
 
-    public List<Location> calculateLocations() {
+    public List<Pos> calculateLocations() {
         return effectList.stream()
                 .flatMap(p -> p.calculateLocations().stream())
                 .collect(Collectors.toCollection(ArrayList::new));
@@ -158,43 +161,8 @@ public class EffectGroup {
         return this;
     }
 
-    public EffectGroup setOrigin(Location origin) {
+    public EffectGroup setOrigin(Pos origin) {
         effectList.forEach(effect -> effect.setOrigin(origin));
-        return this;
-    }
-
-    public EffectGroup setParticle(Particle particle) {
-        effectList.forEach(effect -> effect.setParticle(particle));
-        return this;
-    }
-
-    public EffectGroup setCount(int count) {
-        effectList.forEach(effect -> effect.setCount(count));
-        return this;
-    }
-
-    public EffectGroup setOffsetX(double offsetX) {
-        effectList.forEach(effect -> effect.setOffsetX(offsetX));
-        return this;
-    }
-
-    public EffectGroup setOffsetY(double offsetY) {
-        effectList.forEach(effect -> effect.setOffsetX(offsetY));
-        return this;
-    }
-
-    public EffectGroup setOffsetZ(double offsetZ) {
-        effectList.forEach(effect -> effect.setOffsetX(offsetZ));
-        return this;
-    }
-
-    public EffectGroup setExtra(double extra) {
-        effectList.forEach(effect -> effect.setExtra(extra));
-        return this;
-    }
-
-    public EffectGroup setData(Object data) {
-        effectList.forEach(effect -> effect.setData(data));
         return this;
     }
 
@@ -204,12 +172,12 @@ public class EffectGroup {
     }
 
     public EffectGroup setIncrementY(double incrementY) {
-        effectList.forEach(effect -> effect.setIncrementX(incrementY));
+        effectList.forEach(effect -> effect.setIncrementY(incrementY));
         return this;
     }
 
     public EffectGroup setIncrementZ(double incrementZ) {
-        effectList.forEach(effect -> effect.setIncrementX(incrementZ));
+        effectList.forEach(effect -> effect.setIncrementZ(incrementZ));
         return this;
     }
 
@@ -221,11 +189,6 @@ public class EffectGroup {
      */
     public EffectGroup setPeriod(long period) {
         effectList.forEach(effect -> effect.setPeriod(period));
-        return this;
-    }
-
-    public EffectGroup setColor(Color color) {
-        effectList.forEach(effect -> effect.setColor(color));
         return this;
     }
 

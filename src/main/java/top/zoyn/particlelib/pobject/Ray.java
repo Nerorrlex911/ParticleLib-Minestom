@@ -1,11 +1,11 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
+import net.minestom.server.coordinate.Pos;
 import org.bukkit.entity.Entity;
-import org.bukkit.scheduler.BukkitRunnable;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
 import org.bukkit.util.Consumer;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
 
 import java.util.Collection;
@@ -20,7 +20,7 @@ import java.util.stream.Collectors;
  */
 public class Ray extends ParticleObject implements Playable {
 
-    private Vector direction;
+    private Vec direction;
     private double maxLength;
     private double step;
     /**
@@ -33,19 +33,19 @@ public class Ray extends ParticleObject implements Playable {
 
     private double currentStep = 0D;
 
-    public Ray(Location origin, Vector direction, double maxLength) {
+    public Ray(Pos origin, Vec direction, double maxLength) {
         this(origin, direction, maxLength, 0.2D);
     }
 
-    public Ray(Location origin, Vector direction, double maxLength, double step) {
+    public Ray(Pos origin, Vec direction, double maxLength, double step) {
         this(origin, direction, maxLength, step, 0.5D, RayStopType.MAX_LENGTH, null);
     }
 
-    public Ray(Location origin, Vector direction, double maxLength, double step, double range, RayStopType stopType, Consumer<Entity> hitEntityConsumer) {
+    public Ray(Pos origin, Vec direction, double maxLength, double step, double range, RayStopType stopType, Consumer<Entity> hitEntityConsumer) {
         this(origin, direction, maxLength, step, range, stopType, hitEntityConsumer, null);
     }
 
-    public Ray(Location origin, Vector direction, double maxLength, double step, double range, RayStopType stopType, Consumer<Entity> hitEntityConsumer, Predicate<Entity> entityFilter) {
+    public Ray(Pos origin, Vec direction, double maxLength, double step, double range, RayStopType stopType, Consumer<Entity> hitEntityConsumer, Predicate<Entity> entityFilter) {
         setOrigin(origin);
         this.direction = direction;
         this.maxLength = maxLength;
@@ -57,17 +57,17 @@ public class Ray extends ParticleObject implements Playable {
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
 
         for (double i = 0; i < maxLength; i += step) {
-            Vector vectorTemp = direction.clone().multiply(i);
-            Location spawnLocation = getOrigin().clone().add(vectorTemp);
+            Vec vecTemp = direction.mul(i);
+            Pos spawnPos = getOrigin().add(vecTemp);
 
-            points.add(spawnLocation);
+            points.add(spawnPos);
 
             if (stopType.equals(RayStopType.HIT_ENTITY)) {
-                Collection<Entity> nearbyEntities = spawnLocation.getWorld().getNearbyEntities(spawnLocation, range, range, range);
+                Collection<Entity> nearbyEntities = spawnPos.getWorld().getNearbyEntities(spawnPos, range, range, range);
                 List<Entity> entities = Lists.newArrayList();
                 // 检测有无过滤器
                 if (entityFilter != null) {
@@ -89,29 +89,29 @@ public class Ray extends ParticleObject implements Playable {
 
         // 做一个对 Matrix 和 Increment 的兼容
         return points.stream().map(location -> {
-            Location showLocation = location;
+            Pos showPos = location;
             if (hasMatrix()) {
-                Vector v = new Vector(location.getX() - getOrigin().getX(), location.getY() - getOrigin().getY(), location.getZ() - getOrigin().getZ());
-                Vector changed = getMatrix().applyVector(v);
+                Vec v = new Vec(location.x() - getOrigin().x(), location.y() - getOrigin().y(), location.z() - getOrigin().z());
+                Vec changed = getMatrix().applyVector(v);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            return showLocation;
+            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            return showPos;
         }).collect(Collectors.toList());
     }
 
     @Override
     public void show() {
         for (double i = 0; i < maxLength; i += step) {
-            Vector vectorTemp = direction.clone().multiply(i);
-            Location spawnLocation = getOrigin().clone().add(vectorTemp);
+            Vec vecTemp = direction.mul(i);
+            Pos spawnPos = getOrigin().add(vecTemp);
 
-            spawnParticle(spawnLocation);
+            spawnParticle(spawnPos);
 
             if (stopType.equals(RayStopType.HIT_ENTITY)) {
-                Collection<Entity> nearbyEntities = spawnLocation.getWorld().getNearbyEntities(spawnLocation, range, range, range);
+                Collection<Entity> nearbyEntities = spawnPos.getWorld().getNearbyEntities(spawnPos, range, range, range);
                 List<Entity> entities = Lists.newArrayList();
                 // 检测有无过滤器
                 if (entityFilter != null) {
@@ -135,7 +135,7 @@ public class Ray extends ParticleObject implements Playable {
 
     @Override
     public void play() {
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             @Override
             public void run() {
                 // 进行关闭
@@ -144,13 +144,13 @@ public class Ray extends ParticleObject implements Playable {
                     return;
                 }
                 currentStep += step;
-                Vector vectorTemp = direction.clone().multiply(currentStep);
-                Location spawnLocation = getOrigin().clone().add(vectorTemp);
+                Vec vecTemp = direction.mul(currentStep);
+                Pos spawnPos = getOrigin().add(vecTemp);
 
-                spawnParticle(spawnLocation);
+                spawnParticle(spawnPos);
 
                 if (stopType.equals(RayStopType.HIT_ENTITY)) {
-                    Collection<Entity> nearbyEntities = spawnLocation.getWorld().getNearbyEntities(spawnLocation, range, range, range);
+                    Collection<Entity> nearbyEntities = spawnPos.getWorld().getNearbyEntities(spawnPos, range, range, range);
                     List<Entity> entities = Lists.newArrayList();
                     // 检测有无过滤器
                     if (entityFilter != null) {
@@ -176,13 +176,13 @@ public class Ray extends ParticleObject implements Playable {
     @Override
     public void playNextPoint() {
         currentStep += step;
-        Vector vectorTemp = direction.clone().multiply(currentStep);
-        Location spawnLocation = getOrigin().clone().add(vectorTemp);
+        Vec vecTemp = direction.mul(currentStep);
+        Pos spawnPos = getOrigin().add(vecTemp);
 
-        spawnParticle(spawnLocation);
+        spawnParticle(spawnPos);
 
         if (stopType.equals(RayStopType.HIT_ENTITY)) {
-            Collection<Entity> nearbyEntities = spawnLocation.getWorld().getNearbyEntities(spawnLocation, range, range, range);
+            Collection<Entity> nearbyEntities = spawnPos.getWorld().getNearbyEntities(spawnPos, range, range, range);
             List<Entity> entities = Lists.newArrayList();
             // 检测有无过滤器
             if (entityFilter != null) {
@@ -207,11 +207,11 @@ public class Ray extends ParticleObject implements Playable {
         }
     }
 
-    public Vector getDirection() {
+    public Vec getDirection() {
         return direction;
     }
 
-    public Ray setDirection(Vector direction) {
+    public Ray setDirection(Vec direction) {
         this.direction = direction;
         return this;
     }

@@ -1,9 +1,9 @@
 package top.zoyn.particlelib.pobject.equation;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
 import top.zoyn.particlelib.pobject.ParticleObject;
 import top.zoyn.particlelib.pobject.Playable;
@@ -34,7 +34,7 @@ public class ParametricEquationRenderer extends ParticleObject implements Playab
      * @param xFunction x函数
      * @param yFunction y函数
      */
-    public ParametricEquationRenderer(Location origin, Function<Double, Double> xFunction, Function<Double, Double> yFunction) {
+    public ParametricEquationRenderer(Pos origin, Function<Double, Double> xFunction, Function<Double, Double> yFunction) {
         this(origin, xFunction, yFunction, theta -> 0D, 0D, 360D);
     }
 
@@ -46,7 +46,7 @@ public class ParametricEquationRenderer extends ParticleObject implements Playab
      * @param yFunction y函数
      * @param zFunction z函数
      */
-    public ParametricEquationRenderer(Location origin, Function<Double, Double> xFunction, Function<Double, Double> yFunction, Function<Double, Double> zFunction) {
+    public ParametricEquationRenderer(Pos origin, Function<Double, Double> xFunction, Function<Double, Double> yFunction, Function<Double, Double> zFunction) {
         this(origin, xFunction, yFunction, zFunction, 0D, 360D);
     }
 
@@ -60,7 +60,7 @@ public class ParametricEquationRenderer extends ParticleObject implements Playab
      * @param minT      自变量最小值
      * @param maxT      自变量最大值
      */
-    public ParametricEquationRenderer(Location origin, Function<Double, Double> xFunction, Function<Double, Double> yFunction, Function<Double, Double> zFunction, double minT, double maxT) {
+    public ParametricEquationRenderer(Pos origin, Function<Double, Double> xFunction, Function<Double, Double> yFunction, Function<Double, Double> zFunction, double minT, double maxT) {
         this(origin, xFunction, yFunction, zFunction, minT, maxT, 1D);
     }
 
@@ -75,7 +75,7 @@ public class ParametricEquationRenderer extends ParticleObject implements Playab
      * @param maxT      自变量最大值
      * @param dT        每次自变量所增加的量
      */
-    public ParametricEquationRenderer(Location origin, Function<Double, Double> xFunction, Function<Double, Double> yFunction, Function<Double, Double> zFunction, double minT, double maxT, double dT) {
+    public ParametricEquationRenderer(Pos origin, Function<Double, Double> xFunction, Function<Double, Double> yFunction, Function<Double, Double> zFunction, double minT, double maxT, double dT) {
         setOrigin(origin);
         this.xFunction = xFunction;
         this.yFunction = yFunction;
@@ -86,26 +86,26 @@ public class ParametricEquationRenderer extends ParticleObject implements Playab
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         for (double t = minT; t < maxT; t += dt) {
             double x = xFunction.apply(t);
             double y = yFunction.apply(t);
             double z = zFunction.apply(t);
-            points.add(getOrigin().clone().add(x, y, z));
+            points.add(getOrigin().add(x, y, z));
         }
         // 做一个对 Matrix 和 Increment 的兼容
         return points.stream().map(location -> {
-            Location showLocation = location;
+            Pos showPos = location;
             if (hasMatrix()) {
-                Vector v = new Vector(location.getX() - getOrigin().getX(), location.getY() - getOrigin().getY(), location.getZ() - getOrigin().getZ());
-                Vector changed = getMatrix().applyVector(v);
+                Vec v = new Vec(location.x() - getOrigin().x(), location.y() - getOrigin().y(), location.z() - getOrigin().z());
+                Vec changed = getMatrix().applyVector(v);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            return showLocation;
+            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            return showPos;
         }).collect(Collectors.toList());
     }
 
@@ -115,13 +115,13 @@ public class ParametricEquationRenderer extends ParticleObject implements Playab
             double x = xFunction.apply(t);
             double y = yFunction.apply(t);
             double z = zFunction.apply(t);
-            spawnParticle(getOrigin().clone().add(x, y, z));
+            spawnParticle(getOrigin().add(x, y, z));
         }
     }
 
     @Override
     public void play() {
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             @Override
             public void run() {
                 // 进行关闭
@@ -134,7 +134,7 @@ public class ParametricEquationRenderer extends ParticleObject implements Playab
                 double x = xFunction.apply(currentT);
                 double y = yFunction.apply(currentT);
                 double z = zFunction.apply(currentT);
-                spawnParticle(getOrigin().clone().add(x, y, z));
+                spawnParticle(getOrigin().add(x, y, z));
             }
         }.runTaskTimer(ParticleLib.getInstance(), 0, getPeriod());
     }
@@ -149,7 +149,7 @@ public class ParametricEquationRenderer extends ParticleObject implements Playab
         double x = xFunction.apply(currentT);
         double y = yFunction.apply(currentT);
         double z = zFunction.apply(currentT);
-        spawnParticle(getOrigin().clone().add(x, y, z));
+        spawnParticle(getOrigin().add(x, y, z));
     }
 
     public double getMinT() {

@@ -14,6 +14,8 @@ repositories {
 dependencies {
     compileOnly("org.spigotmc:spigot-api:1.15.2-R0.1-SNAPSHOT")
     compileOnly("org.spigotmc:spigot-api:1.12.2-R0.1-SNAPSHOT")
+    compileOnly("dev.hollowcube:minestom-ce:47dfb29c20")
+    compileOnly("dev.hollowcube:minestom-ce-extensions:1.2.0")
 }
 
 group = "top.zoyn.particlelib"
@@ -21,8 +23,8 @@ version = "1.5.1"
 description = "ParticleLib"
 
 java {
-    sourceCompatibility = JavaVersion.VERSION_1_8
-    targetCompatibility = JavaVersion.VERSION_1_8
+    sourceCompatibility = JavaVersion.VERSION_17
+    targetCompatibility = JavaVersion.VERSION_17
     withSourcesJar()
     withJavadocJar()
 }

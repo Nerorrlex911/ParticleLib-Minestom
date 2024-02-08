@@ -1,8 +1,8 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.utils.VectorUtils;
 
 import java.util.List;
@@ -18,16 +18,16 @@ public class Cube extends ParticleObject {
     /**
      * 向上的向量
      */
-    private static final Vector UP = new Vector(0, 1, 0).normalize();
+    private static final Vec UP = new Vec(0, 1, 0).normalize();
     /**
      * 向 X正半轴 的向量
      */
-    private static final Vector RIGHT = new Vector(1, 0, 0).normalize();
-    private Location minLoc;
-    private Location maxLoc;
+    private static final Vec RIGHT = new Vec(1, 0, 0).normalize();
+    private Pos minLoc;
+    private Pos maxLoc;
     private double step;
 
-    public Cube(Location minLoc, Location maxLoc) {
+    public Cube(Pos minLoc, Pos maxLoc) {
         this(minLoc, maxLoc, 0.2D);
     }
 
@@ -38,30 +38,27 @@ public class Cube extends ParticleObject {
      * @param maxLoc 另外一个点
      * @param step   绘制边框时的步进长度
      */
-    public Cube(Location minLoc, Location maxLoc, double step) {
+    public Cube(Pos minLoc, Pos maxLoc, double step) {
         this.minLoc = minLoc;
         this.maxLoc = maxLoc;
         this.step = step;
-        if (minLoc.getWorld() != maxLoc.getWorld()) {
-            throw new IllegalArgumentException("这两个坐标的所对应的世界不相同");
-        }
 
-        setOrigin(minLoc.clone().add(VectorUtils.createVector(minLoc, maxLoc).multiply(0.5)));
+        setOrigin(minLoc.add(VectorUtils.createVector(minLoc, maxLoc).mul(0.5)));
     }
 
-    public Location getMinLocation() {
+    public Pos getMinLocation() {
         return minLoc;
     }
 
-    public void setMinLocation(Location minLoc) {
+    public void setMinLocation(Pos minLoc) {
         this.minLoc = minLoc;
     }
 
-    public Location getMaxLocation() {
+    public Pos getMaxLocation() {
         return maxLoc;
     }
 
-    public void setMaxLocation(Location maxLoc) {
+    public void setMaxLocation(Pos maxLoc) {
         this.maxLoc = maxLoc;
     }
 
@@ -74,18 +71,18 @@ public class Cube extends ParticleObject {
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         // 获得最大最小的两个点
-        double minX = Math.min(minLoc.getX(), maxLoc.getX());
-        double minY = Math.min(minLoc.getY(), maxLoc.getY());
-        double minZ = Math.min(minLoc.getZ(), maxLoc.getZ());
+        double minX = Math.min(minLoc.x(), maxLoc.x());
+        double minY = Math.min(minLoc.y(), maxLoc.y());
+        double minZ = Math.min(minLoc.z(), maxLoc.z());
 
-        double maxX = Math.max(minLoc.getX(), maxLoc.getX());
-        double maxY = Math.max(minLoc.getY(), maxLoc.getY());
-        double maxZ = Math.max(minLoc.getZ(), maxLoc.getZ());
+        double maxX = Math.max(minLoc.x(), maxLoc.x());
+        double maxY = Math.max(minLoc.y(), maxLoc.y());
+        double maxZ = Math.max(minLoc.z(), maxLoc.z());
 
-        Location minLoc = new Location(this.minLoc.getWorld(), minX, minY, minZ);
+        Pos minLoc = new Pos(minX, minY, minZ);
 
         // 获得立方体的 长 宽 高
         double width = maxX - minX;
@@ -93,10 +90,10 @@ public class Cube extends ParticleObject {
         double depth = maxZ - minZ;
 
         // 此处的 newOrigin是底部的四个点
-        Location newOrigin = minLoc;
+        Pos newOrigin = minLoc;
         double length;
         // 这里直接得到向X正半轴方向的向量
-        Vector vector = RIGHT.clone();
+        Vec vec = RIGHT;
         for (int i = 1; i <= 4; i++) {
             if (i % 2 == 0) {
                 length = depth;
@@ -106,47 +103,47 @@ public class Cube extends ParticleObject {
 
             // 4条高
             for (double j = 0; j < height; j += step) {
-                points.add(newOrigin.clone().add(UP.clone().multiply(j)));
+                points.add(newOrigin.add(UP.mul(j)));
             }
 
             // 第n条边
             for (double j = 0; j < length; j += step) {
-                Location spawnLoc = newOrigin.clone().add(vector.clone().multiply(j));
+                Pos spawnLoc = newOrigin.add(vec.mul(j));
                 points.add(spawnLoc);
-                points.add(spawnLoc.clone().add(0, height, 0));
+                points.add(spawnLoc.add(0, height, 0));
             }
             // 获取结束时的坐标
-            newOrigin = newOrigin.clone().add(vector.clone().multiply(length));
-            vector = VectorUtils.rotateAroundAxisY(vector, 90D);
+            newOrigin = newOrigin.add(vec.mul(length));
+            vec = VectorUtils.rotateAroundAxisY(vec, 90D);
         }
 
         // 做一个对 Matrix 和 Increment 的兼容
         return points.stream().map(location -> {
-            Location showLocation = location;
+            Pos showPos = location;
             if (hasMatrix()) {
-                Vector v = new Vector(location.getX() - getOrigin().getX(), location.getY() - getOrigin().getY(), location.getZ() - getOrigin().getZ());
-                Vector changed = getMatrix().applyVector(v);
+                Vec v = new Vec(location.x() - getOrigin().x(), location.y() - getOrigin().y(), location.z() - getOrigin().z());
+                Vec changed = getMatrix().applyVector(v);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            return showLocation;
+            showPos = showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            return showPos;
         }).collect(Collectors.toList());
     }
 
     @Override
     public void show() {
         // 获得最大最小的两个点
-        double minX = Math.min(minLoc.getX(), maxLoc.getX());
-        double minY = Math.min(minLoc.getY(), maxLoc.getY());
-        double minZ = Math.min(minLoc.getZ(), maxLoc.getZ());
+        double minX = Math.min(minLoc.x(), maxLoc.x());
+        double minY = Math.min(minLoc.y(), maxLoc.y());
+        double minZ = Math.min(minLoc.z(), maxLoc.z());
 
-        double maxX = Math.max(minLoc.getX(), maxLoc.getX());
-        double maxY = Math.max(minLoc.getY(), maxLoc.getY());
-        double maxZ = Math.max(minLoc.getZ(), maxLoc.getZ());
+        double maxX = Math.max(minLoc.x(), maxLoc.x());
+        double maxY = Math.max(minLoc.y(), maxLoc.y());
+        double maxZ = Math.max(minLoc.z(), maxLoc.z());
 
-        Location minLoc = new Location(this.minLoc.getWorld(), minX, minY, minZ);
+        Pos minLoc = new Pos(minX, minY, minZ);
 
         // 获得立方体的 长 宽 高
         double width = maxX - minX;
@@ -154,10 +151,10 @@ public class Cube extends ParticleObject {
         double depth = maxZ - minZ;
 
         // 此处的 newOrigin是底部的四个点
-        Location newOrigin = minLoc;
+        Pos newOrigin = minLoc;
         double length;
         // 这里直接得到向X正半轴方向的向量
-        Vector vector = RIGHT.clone();
+        Vec vec = RIGHT;
         for (int i = 1; i <= 4; i++) {
             if (i % 2 == 0) {
                 length = depth;
@@ -167,18 +164,18 @@ public class Cube extends ParticleObject {
 
             // 4条高
             for (double j = 0; j < height; j += step) {
-                spawnParticle(newOrigin.clone().add(UP.clone().multiply(j)));
+                spawnParticle(newOrigin.add(UP.mul(j)));
             }
 
             // 第n条边
             for (double j = 0; j < length; j += step) {
-                Location spawnLoc = newOrigin.clone().add(vector.clone().multiply(j));
+                Pos spawnLoc = newOrigin.add(vec.mul(j));
                 spawnParticle(spawnLoc);
                 spawnParticle(spawnLoc.add(0, height, 0));
             }
             // 获取结束时的坐标
-            newOrigin = newOrigin.clone().add(vector.clone().multiply(length));
-            vector = VectorUtils.rotateAroundAxisY(vector, 90D);
+            newOrigin = newOrigin.add(vec.mul(length));
+            vec = VectorUtils.rotateAroundAxisY(vec, 90D);
         }
     }
 }

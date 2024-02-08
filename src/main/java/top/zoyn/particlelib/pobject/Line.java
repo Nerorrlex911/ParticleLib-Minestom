@@ -2,10 +2,10 @@ package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
 import org.bukkit.Color;
-import org.bukkit.Location;
+import net.minestom.server.coordinate.Pos;
 import org.bukkit.Particle;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
 
 import java.util.List;
@@ -17,9 +17,9 @@ import java.util.List;
  */
 public class Line extends ParticleObject implements Playable {
 
-    private Vector vector;
-    private Location start;
-    private Location end;
+    private Vec vec;
+    private Pos start;
+    private Pos end;
     /**
      * 步长
      */
@@ -30,7 +30,7 @@ public class Line extends ParticleObject implements Playable {
     private double length;
     private double currentStep = 0D;
 
-    public Line(Location start, Location end) {
+    public Line(Pos start, Pos end) {
         this(start, end, 0.1);
     }
 
@@ -41,7 +41,7 @@ public class Line extends ParticleObject implements Playable {
      * @param end   线的终点
      * @param step  每个粒子之间的间隔 (也即步长)
      */
-    public Line(Location start, Location end, double step) {
+    public Line(Pos start, Pos end, double step) {
         this(start, end, step, 20L);
     }
 
@@ -53,7 +53,7 @@ public class Line extends ParticleObject implements Playable {
      * @param step   每个粒子之间的间隔 (也即步长)
      * @param period 特效周期(如果需要可以使用)
      */
-    public Line(Location start, Location end, double step, long period) {
+    public Line(Pos start, Pos end, double step, long period) {
         this.start = start;
         this.end = end;
         this.step = step;
@@ -63,30 +63,30 @@ public class Line extends ParticleObject implements Playable {
         resetVector();
     }
 
-    public static void buildLine(Location locA, Location locB, double step, Particle particle) {
-        Vector vectorAB = locB.clone().subtract(locA).toVector();
-        double vectorLength = vectorAB.length();
-        vectorAB.normalize();
+    public static void buildLine(Pos locA, Pos locB, double step, Particle particle) {
+        Vec vecAB = locB.sub(locA).asVec();
+        double vectorLength = vecAB.length();
+        vecAB.normalize();
         for (double i = 0; i < vectorLength; i += step) {
-            locA.getWorld().spawnParticle(particle, locA.clone().add(vectorAB.clone().multiply(i)), 1);
+            locA.getWorld().spawnParticle(particle, locA.add(vecAB.mul(i)), 1);
         }
     }
 
-    public static void buildLine(Location locA, Location locB, double step, Color color) {
-        Vector vectorAB = locB.clone().subtract(locA).toVector();
-        double vectorLength = vectorAB.length();
-        vectorAB.normalize();
+    public static void buildLine(Pos locA, Pos locB, double step, Color color) {
+        Vec vecAB = locB.sub(locA).asVec();
+        double vectorLength = vecAB.length();
+        vecAB.normalize();
         for (double i = 0; i < vectorLength; i += step) {
-            locA.getWorld().spawnParticle(Particle.REDSTONE, locA.clone().add(vectorAB.clone().multiply(i)), 1, 0, 0, 0, color);
+            locA.getWorld().spawnParticle(Particle.REDSTONE, locA.add(vecAB.mul(i)), 1, 0, 0, 0, color);
         }
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         for (double i = 0; i < length; i += step) {
-            Vector vectorTemp = vector.clone().multiply(i);
-            points.add(start.clone().add(vectorTemp));
+            Vec vecTemp = vec.mul(i);
+            points.add(start.add(vecTemp));
         }
         return points;
     }
@@ -94,14 +94,14 @@ public class Line extends ParticleObject implements Playable {
     @Override
     public void show() {
         for (double i = 0; i < length; i += step) {
-            Vector vectorTemp = vector.clone().multiply(i);
-            spawnParticle(start.clone().add(vectorTemp));
+            Vec vecTemp = vec.mul(i);
+            spawnParticle(start.add(vecTemp));
         }
     }
 
     @Override
     public void play() {
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             @Override
             public void run() {
                 // 进行关闭
@@ -110,8 +110,8 @@ public class Line extends ParticleObject implements Playable {
                     return;
                 }
                 currentStep += step;
-                Vector vectorTemp = vector.clone().multiply(currentStep);
-                spawnParticle(start.clone().add(vectorTemp));
+                Vec vecTemp = vec.mul(currentStep);
+                spawnParticle(start.add(vecTemp));
             }
         }.runTaskTimer(ParticleLib.getInstance(), 0, getPeriod());
     }
@@ -119,29 +119,29 @@ public class Line extends ParticleObject implements Playable {
     @Override
     public void playNextPoint() {
         currentStep += step;
-        Vector vectorTemp = vector.clone().multiply(currentStep);
-        spawnParticle(start.clone().add(vectorTemp));
+        Vec vecTemp = vec.mul(currentStep);
+        spawnParticle(start.add(vecTemp));
 
         if (currentStep > length) {
             currentStep = 0D;
         }
     }
 
-    public Location getStart() {
+    public Pos getStart() {
         return start;
     }
 
-    public Line setStart(Location start) {
+    public Line setStart(Pos start) {
         this.start = start;
         resetVector();
         return this;
     }
 
-    public Location getEnd() {
+    public Pos getEnd() {
         return end;
     }
 
-    public Line setEnd(Location end) {
+    public Line setEnd(Pos end) {
         this.end = end;
         resetVector();
         return this;
@@ -158,9 +158,9 @@ public class Line extends ParticleObject implements Playable {
     }
 
     public void resetVector() {
-        vector = end.clone().subtract(start).toVector();
-        length = vector.length();
-        vector.normalize();
+        vec = end.sub(start).asVec();
+        length = vec.length();
+        vec.normalize();
     }
 
 }

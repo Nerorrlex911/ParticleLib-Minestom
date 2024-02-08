@@ -1,8 +1,8 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.utils.VectorUtils;
 
 import java.util.List;
@@ -20,7 +20,7 @@ public class NStar extends ParticleObject {
     private double radius;
     private double step;
 
-    public NStar(Location origin, int corner, double radius, double step) {
+    public NStar(Pos origin, int corner, double radius, double step) {
         if (corner % 2 == 0) {
             throw new IllegalArgumentException("N角星的 corner 参数必须为一个奇数整数!");
         }
@@ -33,43 +33,43 @@ public class NStar extends ParticleObject {
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         double x = radius * Math.cos(Math.toRadians(angle));
         double z = radius * Math.sin(Math.toRadians(angle));
 
         double x2 = radius * Math.cos(Math.toRadians(angle * 3));
         double z2 = radius * Math.sin(Math.toRadians(angle * 3));
 
-        Vector START = new Vector(x2 - x, 0, z2 - z);
+        Vec START = new Vec(x2 - x, 0, z2 - z);
         double length = START.length();
         START.normalize();
-        Location end = getOrigin().clone().add(x, 0, z);
+        Pos end = getOrigin().add(x, 0, z);
 
         for (int i = 1; i <= corner; i++) {
             for (double j = 0; j < length; j += step) {
-                Vector vectorTemp = START.clone().multiply(j);
-                Location spawnLocation = end.clone().add(vectorTemp);
+                Vec vecTemp = START.mul(j);
+                Pos spawnPos = end.add(vecTemp);
 
-                points.add(spawnLocation);
+                points.add(spawnPos);
             }
-            Vector vectorTemp = START.clone().multiply(length);
-            end = end.clone().add(vectorTemp);
+            Vec vecTemp = START.mul(length);
+            end = end.add(vecTemp);
 
             VectorUtils.rotateAroundAxisY(START, 180 - angle / 2);
         }
         // 做一个对 Matrix 和 Increment 的兼容
         return points.stream().map(location -> {
-            Location showLocation = location;
+            Pos showPos = location;
             if (hasMatrix()) {
-                Vector v = new Vector(location.getX() - getOrigin().getX(), location.getY() - getOrigin().getY(), location.getZ() - getOrigin().getZ());
-                Vector changed = getMatrix().applyVector(v);
+                Vec v = new Vec(location.x() - getOrigin().x(), location.y() - getOrigin().y(), location.z() - getOrigin().z());
+                Vec changed = getMatrix().applyVector(v);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            return showLocation;
+            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            return showPos;
         }).collect(Collectors.toList());
     }
 
@@ -81,20 +81,20 @@ public class NStar extends ParticleObject {
         double x2 = radius * Math.cos(Math.toRadians(angle * 3));
         double z2 = radius * Math.sin(Math.toRadians(angle * 3));
 
-        Vector START = new Vector(x2 - x, 0, z2 - z);
+        Vec START = new Vec(x2 - x, 0, z2 - z);
         double length = START.length();
         START.normalize();
-        Location end = getOrigin().clone().add(x, 0, z);
+        Pos end = getOrigin().add(x, 0, z);
 
         for (int i = 1; i <= corner; i++) {
             for (double j = 0; j < length; j += step) {
-                Vector vectorTemp = START.clone().multiply(j);
-                Location spawnLocation = end.clone().add(vectorTemp);
+                Vec vecTemp = START.mul(j);
+                Pos spawnPos = end.add(vecTemp);
 
-                spawnParticle(spawnLocation);
+                spawnParticle(spawnPos);
             }
-            Vector vectorTemp = START.clone().multiply(length);
-            end = end.clone().add(vectorTemp);
+            Vec vecTemp = START.mul(length);
+            end = end.add(vecTemp);
 
             VectorUtils.rotateAroundAxisY(START, 180 - angle / 2);
         }

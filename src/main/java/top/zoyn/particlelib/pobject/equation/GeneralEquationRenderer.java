@@ -1,9 +1,9 @@
 package top.zoyn.particlelib.pobject.equation;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
 import top.zoyn.particlelib.pobject.ParticleObject;
 import top.zoyn.particlelib.pobject.Playable;
@@ -25,15 +25,15 @@ public class GeneralEquationRenderer extends ParticleObject implements Playable 
     private double dx;
     private double currentX;
 
-    public GeneralEquationRenderer(Location origin, Function<Double, Double> function) {
+    public GeneralEquationRenderer(Pos origin, Function<Double, Double> function) {
         this(origin, function, -5D, 5D);
     }
 
-    public GeneralEquationRenderer(Location origin, Function<Double, Double> function, double minX, double maxX) {
+    public GeneralEquationRenderer(Pos origin, Function<Double, Double> function, double minX, double maxX) {
         this(origin, function, minX, maxX, 0.1);
     }
 
-    public GeneralEquationRenderer(Location origin, Function<Double, Double> function, double minX, double maxX, double dx) {
+    public GeneralEquationRenderer(Pos origin, Function<Double, Double> function, double minX, double maxX, double dx) {
         setOrigin(origin);
         this.function = function;
         this.minX = minX;
@@ -42,36 +42,36 @@ public class GeneralEquationRenderer extends ParticleObject implements Playable 
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         for (double x = minX; x < maxX; x += dx) {
-            points.add(getOrigin().clone().add(x, function.apply(x), 0));
+            points.add(getOrigin().add(x, function.apply(x), 0));
         }
         // 做一个对 Matrix 和 Increment 的兼容
         return points.stream().map(location -> {
-            Location showLocation = location;
+            Pos showPos = location;
             if (hasMatrix()) {
-                Vector v = new Vector(location.getX() - getOrigin().getX(), location.getY() - getOrigin().getY(), location.getZ() - getOrigin().getZ());
-                Vector changed = getMatrix().applyVector(v);
+                Vec v = new Vec(location.x() - getOrigin().x(), location.y() - getOrigin().y(), location.z() - getOrigin().z());
+                Vec changed = getMatrix().applyVector(v);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            return showLocation;
+            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            return showPos;
         }).collect(Collectors.toList());
     }
 
     @Override
     public void show() {
         for (double x = minX; x < maxX; x += dx) {
-            spawnParticle(getOrigin().clone().add(x, function.apply(x), 0));
+            spawnParticle(getOrigin().add(x, function.apply(x), 0));
         }
     }
 
     @Override
     public void play() {
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             @Override
             public void run() {
                 // 进行关闭
@@ -80,7 +80,7 @@ public class GeneralEquationRenderer extends ParticleObject implements Playable 
                     return;
                 }
                 currentX += dx;
-                spawnParticle(getOrigin().clone().add(currentX, function.apply(currentX), 0));
+                spawnParticle(getOrigin().add(currentX, function.apply(currentX), 0));
             }
         }.runTaskTimer(ParticleLib.getInstance(), 0, getPeriod());
     }
@@ -92,7 +92,7 @@ public class GeneralEquationRenderer extends ParticleObject implements Playable 
             currentX = minX;
         }
         currentX += dx;
-        spawnParticle(getOrigin().clone().add(currentX, function.apply(currentX), 0));
+        spawnParticle(getOrigin().add(currentX, function.apply(currentX), 0));
     }
 
     public double getMinX() {

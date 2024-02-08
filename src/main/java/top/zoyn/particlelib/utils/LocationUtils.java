@@ -1,8 +1,10 @@
 package top.zoyn.particlelib.utils;
 
-import org.bukkit.Location;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.entity.Entity;
 import org.bukkit.entity.LivingEntity;
-import org.bukkit.util.Vector;
+
+import net.minestom.server.coordinate.Vec;
 
 /**
  * 坐标工具类
@@ -14,24 +16,24 @@ public class LocationUtils {
     /**
      * 在二维平面上利用给定的中心点逆时针旋转一个点
      *
-     * @param location 待旋转的点
+     * @param pos 待旋转的点
      * @param angle    旋转角度
      * @param point    中心点
-     * @return {@link Location}
+     * @return {@link Pos}
      */
-    public static Location rotateLocationAboutPoint(Location location, double angle, Location point) {
+    public static Pos rotateLocationAboutPoint(Pos pos, double angle, Pos point) {
         double radians = Math.toRadians(angle);
-        double dx = location.getX() - point.getX();
-        double dz = location.getZ() - point.getZ();
+        double dx = pos.x() - point.x();
+        double dz = pos.z() - point.z();
 
-        double newX = dx * Math.cos(radians) - dz * Math.sin(radians) + point.getX();
-        double newZ = dz * Math.cos(radians) + dx * Math.sin(radians) + point.getZ();
-        return new Location(location.getWorld(), newX, location.getY(), newZ);
+        double newX = dx * Math.cos(radians) - dz * Math.sin(radians) + point.x();
+        double newZ = dz * Math.cos(radians) + dx * Math.sin(radians) + point.z();
+        return new Pos(newX, pos.y(), newZ);
     }
 
-    public static Location rotateLocationAboutVector(Location location, Location origin, double angle, Vector axis) {
-        Vector vector = location.clone().subtract(origin).toVector();
-        return origin.clone().add(VectorUtils.rotateAroundAxis(vector, axis, angle));
+    public static Pos rotateLocationAboutVector(Pos pos, Pos origin, double angle, Vec axis) {
+        Vec vec = pos.sub(origin).asVec();
+        return origin.add(VectorUtils.rotateAroundAxis(vec, axis, angle));
     }
 
     /**
@@ -45,14 +47,14 @@ public class LocationUtils {
      * @param angle        扇形角度
      * @return 如果处于扇形区域则返回 true
      */
-    public static boolean isPointInEntitySector(Location target, LivingEntity livingEntity, double radius, double angle) {
-        Vector v1 = livingEntity.getLocation().getDirection();
-        Vector v2 = target.clone().subtract(livingEntity.getLocation()).toVector();
+    public static boolean isPointInEntitySector(Pos target, Entity livingEntity, double radius, double angle) {
+        Vec v1 = livingEntity.getPosition().direction();
+        Vec v2 = target.sub(livingEntity.getPosition()).asVec();
 
         double cosTheta = v1.dot(v2) / (v1.length() * v2.length());
         double degree = Math.toDegrees(Math.acos(cosTheta));
         // 距离判断
-        if (target.distance(livingEntity.getLocation()) < radius) {
+        if (target.distance(livingEntity.getPosition()) < radius) {
             // 向量夹角判断
             return degree < angle * 0.5f;
         }
@@ -70,14 +72,14 @@ public class LocationUtils {
      * @param angle        扇形角度
      * @return 如果处于扇形区域则返回 true
      */
-    public static boolean isInsideSector(Location target, LivingEntity livingEntity, double radius, double angle) {
-        Vector sectorStart = VectorUtils.rotateAroundAxisY(livingEntity.getLocation().getDirection().clone(), -angle / 2);
-        Vector sectorEnd = VectorUtils.rotateAroundAxisY(livingEntity.getLocation().getDirection().clone(), angle / 2);
+    public static boolean isInsideSector(Pos target, Entity livingEntity, double radius, double angle) {
+        Vec sectorStart = VectorUtils.rotateAroundAxisY(livingEntity.getPosition().direction(), -angle / 2);
+        Vec sectorEnd = VectorUtils.rotateAroundAxisY(livingEntity.getPosition().direction(), angle / 2);
 
-        Vector v = target.clone().subtract(livingEntity.getLocation()).toVector();
+        Vec v = target.sub(livingEntity.getPosition()).asVec();
 
-        boolean start = -sectorStart.getX() * v.getZ() + sectorStart.getZ() * v.getX() > 0;
-        boolean end = -sectorEnd.getX() * v.getZ() + sectorEnd.getZ() * v.getX() > 0;
-        return !start && end && target.distance(livingEntity.getLocation()) < radius;
+        boolean start = -sectorStart.x() * v.z() + sectorStart.z() * v.x() > 0;
+        boolean end = -sectorEnd.x() * v.z() + sectorEnd.z() * v.x() > 0;
+        return !start && end && target.distance(livingEntity.getPosition()) < radius;
     }
 }

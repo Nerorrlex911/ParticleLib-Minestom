@@ -1,9 +1,9 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
 
 import java.util.List;
@@ -29,7 +29,7 @@ public class Heart extends ParticleObject implements Playable {
      *
      * @param origin 原点
      */
-    public Heart(Location origin) {
+    public Heart(Pos origin) {
         this(1, 1, origin);
     }
 
@@ -40,7 +40,7 @@ public class Heart extends ParticleObject implements Playable {
      * @param yScaleRate Y轴缩放比率
      * @param origin     原点
      */
-    public Heart(double xScaleRate, double yScaleRate, Location origin) {
+    public Heart(double xScaleRate, double yScaleRate, Pos origin) {
         this.xScaleRate = xScaleRate;
         this.yScaleRate = yScaleRate;
         setOrigin(origin);
@@ -71,23 +71,23 @@ public class Heart extends ParticleObject implements Playable {
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         for (double t = -1.0D; t <= 1.0D; t += step) {
             double x = xScaleRate * Math.sin(t) * Math.cos(t) * Math.log(Math.abs(t));
             double y = yScaleRate * Math.sqrt(Math.abs(t)) * Math.cos(t);
 
-            Location showLocation = getOrigin().clone().add(x, 0, y);
+            Pos showPos = getOrigin().add(x, 0, y);
             if (hasMatrix()) {
-                Vector vector = new Vector(x, 0, y);
-                Vector changed = getMatrix().applyVector(vector);
+                Vec vec = new Vec(x, 0, y);
+                Vec changed = getMatrix().applyVector(vec);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            points.add(showLocation);
-//            points.add(getOrigin().clone().add(x, 0, y));
+            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            points.add(showPos);
+//            points.add(getOrigin().add(x, 0, y));
         }
         return points;
     }
@@ -98,14 +98,14 @@ public class Heart extends ParticleObject implements Playable {
             double x = xScaleRate * Math.sin(t) * Math.cos(t) * Math.log(Math.abs(t));
             double y = yScaleRate * Math.sqrt(Math.abs(t)) * Math.cos(t);
 
-            spawnParticle(getOrigin().clone().add(x, 0, y));
+            spawnParticle(getOrigin().add(x, 0, y));
 
         }
     }
 
     @Override
     public void play() {
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             @Override
             public void run() {
                 if (currentT > 1.0D) {
@@ -116,7 +116,7 @@ public class Heart extends ParticleObject implements Playable {
                 double x = xScaleRate * Math.sin(currentT) * Math.cos(currentT) * Math.log(Math.abs(currentT));
                 double y = yScaleRate * Math.sqrt(Math.abs(currentT)) * Math.cos(currentT);
 
-                spawnParticle(getOrigin().clone().add(x, 0, y));
+                spawnParticle(getOrigin().add(x, 0, y));
             }
         }.runTaskTimer(ParticleLib.getInstance(), 0, getPeriod());
     }
@@ -127,7 +127,7 @@ public class Heart extends ParticleObject implements Playable {
         double x = xScaleRate * Math.sin(currentT) * Math.cos(currentT) * Math.log(Math.abs(currentT));
         double y = yScaleRate * Math.sqrt(Math.abs(currentT)) * Math.cos(currentT);
 
-        spawnParticle(getOrigin().clone().add(x, 0, y));
+        spawnParticle(getOrigin().add(x, 0, y));
 
         if (currentT > 1.0D) {
             currentT = -1.0D;

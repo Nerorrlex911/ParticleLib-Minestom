@@ -1,9 +1,9 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
 
 import java.util.List;
@@ -21,19 +21,19 @@ public class Arc extends ParticleObject implements Playable {
     private double step;
     private double currentAngle = 0D;
 
-    public Arc(Location origin) {
+    public Arc(Pos origin) {
         this(origin, 60D);
     }
 
-    public Arc(Location origin, double angle) {
+    public Arc(Pos origin, double angle) {
         this(origin, 0D, angle);
     }
 
-    public Arc(Location origin, double startAngle, double angle) {
+    public Arc(Pos origin, double startAngle, double angle) {
         this(origin, startAngle, angle, 1);
     }
 
-    public Arc(Location origin, double startAngle, double angle, double radius) {
+    public Arc(Pos origin, double startAngle, double angle, double radius) {
         this(origin, startAngle, angle, radius, 1);
     }
 
@@ -46,7 +46,7 @@ public class Arc extends ParticleObject implements Playable {
      * @param radius     弧所在的圆的半径
      * @param step       每个粒子的间隔(也即步长)
      */
-    public Arc(Location origin, double startAngle, double angle, double radius, double step) {
+    public Arc(Pos origin, double startAngle, double angle, double radius, double step) {
         this(origin, startAngle, angle, radius, step, 20L);
     }
 
@@ -60,7 +60,7 @@ public class Arc extends ParticleObject implements Playable {
      * @param step       每个粒子的间隔(也即步长)
      * @param period     特效周期(如果需要可以使用)
      */
-    public Arc(Location origin, double startAngle, double angle, double radius, double step, long period) {
+    public Arc(Pos origin, double startAngle, double angle, double radius, double step, long period) {
         setOrigin(origin);
         this.startAngle = startAngle;
         this.angle = angle;
@@ -70,23 +70,23 @@ public class Arc extends ParticleObject implements Playable {
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         for (double i = startAngle; i < angle; i += step) {
             double radians = Math.toRadians(i);
             double x = radius * Math.cos(radians);
             double z = radius * Math.sin(radians);
 
-            Location showLocation = getOrigin().clone().add(x, 0, z);
+            Pos showPos = getOrigin().add(x, 0, z);
             if (hasMatrix()) {
-                Vector vector = new Vector(x, 0, z);
-                Vector changed = getMatrix().applyVector(vector);
+                Vec vec = new Vec(x, 0, z);
+                Vec changed = getMatrix().applyVector(vec);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            points.add(showLocation);
+            showPos = showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            points.add(showPos);
         }
         return points;
     }
@@ -97,13 +97,13 @@ public class Arc extends ParticleObject implements Playable {
             double radians = Math.toRadians(i);
             double x = radius * Math.cos(radians);
             double z = radius * Math.sin(radians);
-            spawnParticle(getOrigin().clone().add(x, 0, z));
+            spawnParticle(getOrigin().add(x, 0, z));
         }
     }
 
     @Override
     public void play() {
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             @Override
             public void run() {
                 // 进行关闭
@@ -116,7 +116,7 @@ public class Arc extends ParticleObject implements Playable {
                 double x = radius * Math.cos(radians);
                 double z = radius * Math.sin(radians);
 
-                spawnParticle(getOrigin().clone().add(x, 0, z));
+                spawnParticle(getOrigin().add(x, 0, z));
             }
         }.runTaskTimer(ParticleLib.getInstance(), 0, getPeriod());
     }
@@ -128,7 +128,7 @@ public class Arc extends ParticleObject implements Playable {
         double x = radius * Math.cos(radians);
         double z = radius * Math.sin(radians);
 
-        spawnParticle(getOrigin().clone().add(x, 0, z));
+        spawnParticle(getOrigin().add(x, 0, z));
 
         // 进行重置
         if (currentAngle > angle) {

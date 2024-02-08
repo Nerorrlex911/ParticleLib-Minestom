@@ -1,6 +1,6 @@
 package top.zoyn.particlelib.utils;
 
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Vec;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,9 +33,9 @@ public class Icosahedron {
 
     private void drawTriangle(double[] vA0, double[] vB1, double[] vC2, float radius) {
         Triangle triangle = new Triangle(
-                new Vector(vA0[0], vA0[1], vA0[2]).multiply(radius),
-                new Vector(vB1[0], vB1[1], vB1[2]).multiply(radius),
-                new Vector(vC2[0], vC2[1], vC2[2]).multiply(radius));
+                new Vec(vA0[0], vA0[1], vA0[2]).mul(radius),
+                new Vec(vB1[0], vB1[1], vB1[2]).mul(radius),
+                new Vec(vC2[0], vC2[1], vC2[2]).mul(radius));
         triangles.add(triangle);
     }
 
@@ -80,11 +80,11 @@ public class Icosahedron {
     }
 
     public static class Triangle {
-        public Vector point1;
-        public Vector point2;
-        public Vector point3;
+        public Vec point1;
+        public Vec point2;
+        public Vec point3;
 
-        public Triangle(Vector point1, Vector point2, Vector point3) {
+        public Triangle(Vec point1, Vec point2, Vec point3) {
             this.point1 = point1;
             this.point2 = point2;
             this.point3 = point3;

@@ -1,18 +1,22 @@
 package top.zoyn.particlelib.pobject;
 
-import org.bukkit.Bukkit;
-import org.bukkit.Color;
-import org.bukkit.Location;
-import org.bukkit.Particle;
-import org.bukkit.entity.Entity;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.scheduler.BukkitTask;
-import org.bukkit.util.Vector;
+import net.kyori.adventure.audience.Audience;
+import net.minestom.server.color.Color;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.particle.Particle;
+import net.minestom.server.utils.binary.BinaryWriter;
+import net.minestom.server.entity.Entity;
+
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
+import top.zoyn.particlelib.utils.ParticleSpawner;
 import top.zoyn.particlelib.utils.VersionUtils;
 import top.zoyn.particlelib.utils.matrix.Matrix;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
+import top.zoyn.particlelib.utils.scheduler.MinestomTask;
 
 import java.util.List;
+import java.util.function.Consumer;
 
 /**
  * 表示一个特效对象
@@ -21,22 +25,18 @@ import java.util.List;
  */
 public abstract class ParticleObject {
 
-    private Location origin;
+    private Pos origin;
 
     private ShowType showType = ShowType.NONE;
-    private BukkitTask task;
+    private MinestomTask task;
     private long period;
     private boolean running = false;
 
-    private Particle particle = Particle.VILLAGER_HAPPY;
-    private int count = 1;
-    private double offsetX = 0;
-    private double offsetY = 0;
-    private double offsetZ = 0;
-    private double extra = 0;
-    private Object data = null;
-    private Color color;
+    private ParticleSpawner particleSpawner;
+    
     private Entity entity;
+
+    private Audience audience;
     /**
      * X的变化量
      */
@@ -53,7 +53,7 @@ public abstract class ParticleObject {
      *
      * @return 粒子位置列表
      */
-    public abstract List<Location> calculateLocations();
+    public abstract List<Pos> calculateLocations();
 
     /**
      * 将特效对象展示
@@ -67,9 +67,9 @@ public abstract class ParticleObject {
         turnOffTask();
 
         // 此处的延迟 2tick 是为了防止turnOffTask还没把特效给关闭时的缓冲
-        Bukkit.getScheduler().runTaskLater(ParticleLib.getInstance(), () -> {
+        ParticleLib.getScheduler().runTaskLater(ParticleLib.getInstance(), () -> {
             running = true;
-            task = new BukkitRunnable() {
+            task = new MinestomRunnable() {
                 @Override
                 public void run() {
                     if (!running) {
@@ -90,9 +90,9 @@ public abstract class ParticleObject {
         turnOffTask();
 
         // 此处的延迟 2tick 是为了防止turnOffTask还没把特效给关闭时的缓冲
-        Bukkit.getScheduler().runTaskLater(ParticleLib.getInstance(), () -> {
+        ParticleLib.getScheduler().runTaskLater(ParticleLib.getInstance(), () -> {
             running = true;
-            task = new BukkitRunnable() {
+            task = new MinestomRunnable() {
                 @Override
                 public void run() {
                     if (!running) {
@@ -122,9 +122,9 @@ public abstract class ParticleObject {
         turnOffTask();
 
         // 此处的延迟 2tick 是为了防止turnOffTask还没把特效给关闭时的缓冲
-        Bukkit.getScheduler().runTaskLater(ParticleLib.getInstance(), () -> {
+        ParticleLib.getScheduler().runTaskLater(ParticleLib.getInstance(), () -> {
             running = true;
-            task = new BukkitRunnable() {
+            task = new MinestomRunnable() {
                 @Override
                 public void run() {
                     if (!running) {
@@ -154,9 +154,9 @@ public abstract class ParticleObject {
         turnOffTask();
 
         // 此处的延迟 2tick 是为了防止turnOffTask还没把特效给关闭时的缓冲
-        Bukkit.getScheduler().runTaskLater(ParticleLib.getInstance(), () -> {
+        ParticleLib.getScheduler().runTaskLater(ParticleLib.getInstance(), () -> {
             running = true;
-            task = new BukkitRunnable() {
+            task = new MinestomRunnable() {
                 @Override
                 public void run() {
                     if (!running) {
@@ -247,7 +247,7 @@ public abstract class ParticleObject {
     }
 
     /**
-     * 设置 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时 X 轴上的增量
+     * 设置 {@link ParticleObject#spawnParticle(Pos)} 时 X 轴上的增量
      * <p>
      * 换言之是在 X 轴上固定移动 incrementX 个单位
      *
@@ -269,7 +269,7 @@ public abstract class ParticleObject {
     }
 
     /**
-     * 设置 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时 Y 轴上的增量
+     * 设置 {@link ParticleObject#spawnParticle(Pos)} 时 Y 轴上的增量
      * <p>
      * 换言之是在 Y 轴上固定移动 incrementY 个单位
      *
@@ -291,7 +291,7 @@ public abstract class ParticleObject {
     }
 
     /**
-     * 设置 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时 Z 轴上的增量
+     * 设置 {@link ParticleObject#spawnParticle(Pos)} 时 Z 轴上的增量
      * <p>
      * 换言之是在 Z 轴上固定移动 incrementZ 个单位
      *
@@ -306,13 +306,13 @@ public abstract class ParticleObject {
     /**
      * 获取该特效对象的原点
      * <p>
-     * 当特效对象内已经 attachEntity 时则会返回该实体的 Location
+     * 当特效对象内已经 attachEntity 时则会返回该实体的 Pos
      *
-     * @return {@link Location}
+     * @return {@link Pos}
      */
-    public Location getOrigin() {
+    public Pos getOrigin() {
         if (entity != null) {
-            return entity.getLocation();
+            return entity.getPosition();
         }
         return origin;
     }
@@ -323,7 +323,7 @@ public abstract class ParticleObject {
      * @param origin 给定的原点
      * @return {@link ParticleObject}
      */
-    public ParticleObject setOrigin(Location origin) {
+    public ParticleObject setOrigin(Pos origin) {
         this.origin = origin;
         return this;
     }
@@ -368,174 +368,20 @@ public abstract class ParticleObject {
         return this;
     }
 
-    /**
-     * 得到该特效对象的粒子类型
-     *
-     * @return {@link Particle}
-     */
-    public Particle getParticle() {
-        return particle;
+    public ParticleSpawner getParticleSpawner() {
+        return particleSpawner;
     }
 
-    /**
-     * 设置该特效对象的粒子类型
-     * <p>
-     * 该方法将会覆盖已设置的 color 参数
-     *
-     * @param particle 给定的粒子类型
-     * @return {@link ParticleObject}
-     */
-    public ParticleObject setParticle(Particle particle) {
-        this.particle = particle;
-        // 记得重置颜色
-        if (color != null) {
-            color = null;
-        }
-        return this;
+    public void setParticleSpawner(ParticleSpawner particleSpawner) {
+        this.particleSpawner = particleSpawner;
     }
 
-    /**
-     * 得到 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的粒子数量
-     *
-     * @return 一个点的粒子数量
-     */
-    public int getCount() {
-        return count;
+    public Audience getAudience() {
+        return audience;
     }
 
-    /**
-     * 设置 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的粒子数量
-     *
-     * @param count 粒子数量
-     * @return {@link ParticleObject}
-     */
-    public ParticleObject setCount(int count) {
-        this.count = count;
-        return this;
-    }
-
-    /**
-     * 得到 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的 X 轴偏移量
-     *
-     * @return 一个点的 X 轴偏移量
-     */
-    public double getOffsetX() {
-        return offsetX;
-    }
-
-    /**
-     * 设置 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的 X 轴偏移量
-     *
-     * @param offsetX X 轴偏移量
-     * @return {@link ParticleObject}
-     */
-    public ParticleObject setOffsetX(double offsetX) {
-        this.offsetX = offsetX;
-        return this;
-    }
-
-    /**
-     * 得到 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的 Y 轴偏移量
-     *
-     * @return 一个点的 Y 轴偏移量
-     */
-    public double getOffsetY() {
-        return offsetY;
-    }
-
-    /**
-     * 设置 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的 Y 轴偏移量
-     *
-     * @param offsetY Y 轴偏移量
-     * @return {@link ParticleObject}
-     */
-    public ParticleObject setOffsetY(double offsetY) {
-        this.offsetY = offsetY;
-        return this;
-    }
-
-    /**
-     * 得到 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的 Z 轴偏移量
-     *
-     * @return 一个点的 Z 轴偏移量
-     */
-    public double getOffsetZ() {
-        return offsetZ;
-    }
-
-    /**
-     * 设置 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的 Z 轴偏移量
-     *
-     * @param offsetZ Z 轴偏移量
-     * @return {@link ParticleObject}
-     */
-    public ParticleObject setOffsetZ(double offsetZ) {
-        this.offsetZ = offsetZ;
-        return this;
-    }
-
-    /**
-     * 得到 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的 extra 参数
-     *
-     * @return 一个点的 extra 参数
-     */
-    public double getExtra() {
-        return extra;
-    }
-
-    /**
-     * 设置 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的 extra 参数
-     * <p>
-     * 通常为 速度
-     *
-     * @param extra extra 参数
-     * @return {@link ParticleObject}
-     */
-    public ParticleObject setExtra(double extra) {
-        this.extra = extra;
-        return this;
-    }
-
-    /**
-     * 得到 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的 data 参数
-     *
-     * @return 一个点的 data 参数
-     */
-    public Object getData() {
-        return data;
-    }
-
-    /**
-     * 设置 {@link ParticleObject#spawnParticle(Location, Particle, int, double, double, double, double, Object)} 时的 data 参数
-     *
-     * @param data data 参数
-     * @return {@link ParticleObject}
-     */
-    public ParticleObject setData(Object data) {
-        this.data = data;
-        return this;
-    }
-
-    /**
-     * 得到当前特效对象的颜色
-     *
-     * @return {@link Color}
-     */
-    public Color getColor() {
-        return color;
-    }
-
-    /**
-     * 设置当前特效对象的颜色(支持 RGB)
-     * <p>
-     * 该方法将会覆盖 particle 的作用
-     *
-     * @param color 给定的颜色
-     * @return {@link ParticleObject}
-     */
-    public ParticleObject setColor(Color color) {
-        this.color = color;
-        return this;
+    public void setAudience(Audience audience) {
+        this.audience = audience;
     }
 
     /**
@@ -550,7 +396,7 @@ public abstract class ParticleObject {
     /**
      * 设置当前特效对象的所连接的实体
      * <p>
-     * 该方法将会在 {@link ParticleObject#getOrigin()} 时自动替换成实体的实时 Location
+     * 该方法将会在 {@link ParticleObject#getOrigin()} 时自动替换成实体的实时 Pos
      *
      * @param entity 给定的实体
      * @return {@link ParticleObject}
@@ -563,77 +409,35 @@ public abstract class ParticleObject {
     /**
      * 通过给定一个坐标就可以使用已经指定的参数来播放粒子
      *
-     * @param location 坐标
+     * @param pos 坐标
      */
-    public void spawnParticle(Location location) {
-        spawnParticle(location, this.particle, count, offsetX, offsetY, offsetZ, extra, data);
-    }
-
-    /**
-     * 自定义程度较高的生成粒子方法
-     *
-     * @param location 坐标
-     * @param particle 粒子
-     * @param count    粒子数量
-     * @param offsetX  X轴偏移量
-     * @param offsetY  Y轴偏移量
-     * @param offsetZ  Z轴偏移量
-     * @param extra    粒子额外参数
-     * @param data     特殊粒子属性
-     */
-    public void spawnParticle(Location location, Particle particle, int count, double offsetX, double offsetY, double offsetZ, double extra, Object data) {
-        Location showLocation = location;
+    public void spawnParticle(Pos pos) {
+        Pos showPos = pos;
         if (hasMatrix()) {
-            Vector vector = location.clone().subtract(origin).toVector();
-            Vector changed = matrix.applyVector(vector);
+            Vec vec = pos.sub(origin).asVec();
+            Vec changed = matrix.applyVector(vec);
 
-            showLocation = origin.clone().add(changed);
+            showPos = origin.add(changed);
         }
 
         // 在这里可以设置一个XYZ的变化量
-        showLocation.add(incrementX, incrementY, incrementZ);
-
-        // 可以在这里设置 Color
-        if (color != null) {
-            if (VersionUtils.isNewer()) {
-                Particle.DustOptions dust = new Particle.DustOptions(color, 1);
-                location.getWorld().spawnParticle(Particle.REDSTONE, showLocation.getX(), showLocation.getY(), showLocation.getZ(), 0, offsetX, offsetY, offsetZ, 1, dust);
-            } else {
-                // 对低版本的黑色做一个小小的兼容
-                if (color.getRed() == 0 && color.getBlue() == 0 && color.getGreen() == 0) {
-                    location.getWorld().spawnParticle(Particle.REDSTONE, showLocation.getX(), showLocation.getY(), showLocation.getZ(), 0, Float.MIN_VALUE / 255.0f, Float.MIN_VALUE / 255.0f, Float.MIN_VALUE / 255.0f, 1);
-                } else {
-                    location.getWorld().spawnParticle(Particle.REDSTONE, showLocation.getX(), showLocation.getY(), showLocation.getZ(), 0, color.getRed() / 255.0f, color.getGreen() / 255.0f, color.getBlue() / 255.0f, 1);
-                }
-            }
-            return;
-        }
-        location.getWorld().spawnParticle(particle, showLocation, count, offsetX, offsetY, offsetZ, extra, data);
+        showPos = showPos.add(incrementX, incrementY, incrementZ);
+        
+        particleSpawner.spawn(showPos,audience);
     }
 
-    public void spawnColorParticle(Location location, int r, int g, int b) {
-        Location showLocation = location;
+    public void spawnColorParticle(Pos pos, int r, int g, int b) {
+        Pos showPos = pos;
         if (hasMatrix()) {
-            Vector vector = location.clone().subtract(origin).toVector();
-            Vector changed = matrix.applyVector(vector);
+            Vec vec = pos.sub(origin).asVec();
+            Vec changed = matrix.applyVector(vec);
 
-            showLocation = origin.clone().add(changed);
+            showPos = origin.add(changed);
         }
 
         // 在这里可以设置一个XYZ的变化量
-        showLocation.add(incrementX, incrementY, incrementZ);
-
-        if (VersionUtils.isNewer()) {
-            Particle.DustOptions dust = new Particle.DustOptions(Color.fromRGB(r, g, b), 1);
-            location.getWorld().spawnParticle(Particle.REDSTONE, showLocation.getX(), showLocation.getY(), showLocation.getZ(), 0, r, g, b, 1, dust);
-        } else {
-            // 对低版本的黑色做一个小小的兼容
-            if (color.getRed() == 0 && color.getBlue() == 0 && color.getGreen() == 0) {
-                location.getWorld().spawnParticle(Particle.REDSTONE, showLocation.getX(), showLocation.getY(), showLocation.getZ(), 0, Float.MIN_VALUE / 255.0f, Float.MIN_VALUE / 255.0f, Float.MIN_VALUE / 255.0f, 1);
-            } else {
-                location.getWorld().spawnParticle(Particle.REDSTONE, showLocation.getX(), showLocation.getY(), showLocation.getZ(), 0, r / 255.0f, g / 255.0f, b / 255.0f, 1);
-            }
-        }
+        showPos = showPos.add(incrementX, incrementY, incrementZ);
     }
+
 
 }

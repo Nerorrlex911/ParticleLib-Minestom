@@ -1,6 +1,6 @@
 package top.zoyn.particlelib.utils.coordinate;
 
-import org.bukkit.Location;
+import net.minestom.server.coordinate.Pos;
 
 /**
  * 表示一个坐标器
@@ -9,6 +9,6 @@ import org.bukkit.Location;
  */
 public interface Coordinate {
 
-    Location newLocation(double x, double y, double z);
+    Pos newLocation(double x, double y, double z);
 
 }

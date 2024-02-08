@@ -1,7 +1,7 @@
 package top.zoyn.particlelib.utils.projector;
 
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 
 import java.util.function.BiFunction;
 
@@ -14,20 +14,20 @@ import java.util.function.BiFunction;
  */
 public class TwoDProjector {
 
-    private final Location origin;
-    private final Vector n1;
-    private final Vector n2;
+    private final Pos origin;
+    private final Vec n1;
+    private final Vec n2;
 
     /**
      * @param origin 投影的原点
      * @param n      投影屏幕的法向量
      */
-    public TwoDProjector(Location origin, Vector n) {
+    public TwoDProjector(Pos origin, Vec n) {
         this.origin = origin;
-        Vector t = n.clone();
-        t.setY(t.getY() + 1);
-        this.n1 = n.clone().crossProduct(t).normalize();
-        this.n2 = this.n1.clone().crossProduct(n).normalize();
+        Vec t = n;
+        t.withY(t.y() + 1);
+        this.n1 = n.cross(t).normalize();
+        this.n2 = this.n1.cross(n).normalize();
     }
 
     /**
@@ -38,20 +38,20 @@ public class TwoDProjector {
      * @param n   投影屏幕的法向量
      * @return {@link BiFunction}
      */
-    public static BiFunction<Double, Double, Location> create2DProjector(Location loc, Vector n) {
-        Vector t = n.clone();
-        t.setY(t.getY() + 1);
-        Vector n1 = n.clone().crossProduct(t).normalize();
-        Vector n2 = n1.clone().crossProduct(n).normalize();
+    public static BiFunction<Double, Double, Pos> create2DProjector(Pos loc, Vec n) {
+        Vec t = n;
+        t.withY(t.y() + 1);
+        Vec n1 = n.cross(t).normalize();
+        Vec n2 = n1.cross(n).normalize();
         return (x, y) -> {
-            Vector r = n1.clone().multiply(x).add(n2.clone().multiply(y));
-            return loc.clone().add(r);
+            Vec r = n1.mul(x).add(n2.mul(y));
+            return loc.add(r);
         };
     }
 
-    public Location apply(double x, double y) {
-        Vector r = n1.clone().multiply(x).add(n2.clone().multiply(y));
-        return origin.clone().add(r);
+    public Pos apply(double x, double y) {
+        Vec r = n1.mul(x).add(n2.mul(y));
+        return origin.add(r);
     }
 
 }

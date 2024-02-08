@@ -1,8 +1,8 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.utils.VectorUtils;
 
 import java.util.List;
@@ -18,7 +18,7 @@ public class Wing extends ParticleObject {
     /**
      * 用于缓存所有的点的向量
      */
-    private final List<Vector> vectors;
+    private final List<Vec> vecs;
     /**
      * 翅膀的图案
      */
@@ -43,11 +43,11 @@ public class Wing extends ParticleObject {
     private double currentAngle;
     private boolean increase;
 
-    public Wing(Location origin, List<String> pattern) {
+    public Wing(Pos origin, List<String> pattern) {
         this(origin, pattern, 30D, 60D, 0.2D);
     }
 
-    public Wing(Location origin, List<String> pattern, double minRotAngle, double maxRotAngle, double interval) {
+    public Wing(Pos origin, List<String> pattern, double minRotAngle, double maxRotAngle, double interval) {
         setOrigin(origin);
         this.pattern = pattern;
         this.interval = interval;
@@ -56,51 +56,51 @@ public class Wing extends ParticleObject {
 
         currentAngle = -minRotAngle;
         increase = false;
-        vectors = Lists.newArrayList();
+        vecs = Lists.newArrayList();
         swing = true;
         resetWing();
     }
 
     @Override
-    public List<Location> calculateLocations() {
+    public List<Pos> calculateLocations() {
         resetWing();
 
-        List<Location> points = Lists.newArrayList();
-        for (Vector vector : vectors) {
+        List<Pos> points = Lists.newArrayList();
+        for (Vec vec : vecs) {
             if (getEntity() != null) {
-                points.add(getOrigin().clone().add(VectorUtils.rotateVector(vector, getOrigin().getYaw() - 90 + (float) currentAngle, 0F)));
-                points.add(getOrigin().clone().add(VectorUtils.rotateVector(vector.clone().setX(-vector.getX()), getOrigin().getYaw() - 90 - (float) currentAngle, 0F)));
+                points.add(getOrigin().add(VectorUtils.rotateVector(vec, getOrigin().yaw() - 90 + (float) currentAngle, 0F)));
+                points.add(getOrigin().add(VectorUtils.rotateVector(vec.withX(-vec.x()), getOrigin().yaw() - 90 - (float) currentAngle, 0F)));
                 continue;
             }
-            points.add(getOrigin().clone().add(VectorUtils.rotateVector(vector, (float) currentAngle, 0F)));
-            points.add(getOrigin().clone().add(VectorUtils.rotateVector(vector.clone().setX(-vector.getX()), -(float) currentAngle, 0F)));
+            points.add(getOrigin().add(VectorUtils.rotateVector(vec, (float) currentAngle, 0F)));
+            points.add(getOrigin().add(VectorUtils.rotateVector(vec.withX(-vec.x()), -(float) currentAngle, 0F)));
         }
 
         // 做一个对 Matrix 和 Increment 的兼容
         return points.stream().map(location -> {
-            Location showLocation = location;
+            Pos showPos = location;
             if (hasMatrix()) {
-                Vector v = new Vector(location.getX() - getOrigin().getX(), location.getY() - getOrigin().getY(), location.getZ() - getOrigin().getZ());
-                Vector changed = getMatrix().applyVector(v);
+                Vec v = new Vec(location.x() - getOrigin().x(), location.y() - getOrigin().y(), location.z() - getOrigin().z());
+                Vec changed = getMatrix().applyVector(v);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            return showLocation;
+            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            return showPos;
         }).collect(Collectors.toList());
     }
 
     @Override
     public void show() {
-        for (Vector vector : vectors) {
+        for (Vec vec : vecs) {
             if (getEntity() != null) {
-                spawnParticle(getOrigin().clone().add(VectorUtils.rotateVector(vector, getOrigin().getYaw() - 90 + (float) currentAngle, 0F)));
-                spawnParticle(getOrigin().clone().add(VectorUtils.rotateVector(vector.clone().setX(-vector.getX()), getOrigin().getYaw() - 90 - (float) currentAngle, 0F)));
+                spawnParticle(getOrigin().add(VectorUtils.rotateVector(vec, getOrigin().yaw() - 90 + (float) currentAngle, 0F)));
+                spawnParticle(getOrigin().add(VectorUtils.rotateVector(vec.withX(-vec.x()), getOrigin().yaw() - 90 - (float) currentAngle, 0F)));
                 continue;
             }
-            spawnParticle(getOrigin().clone().add(VectorUtils.rotateVector(vector, (float) currentAngle, 0F)));
-            spawnParticle(getOrigin().clone().add(VectorUtils.rotateVector(vector.clone().setX(-vector.getX()), -(float) currentAngle, 0F)));
+            spawnParticle(getOrigin().add(VectorUtils.rotateVector(vec, (float) currentAngle, 0F)));
+            spawnParticle(getOrigin().add(VectorUtils.rotateVector(vec.withX(-vec.x()), -(float) currentAngle, 0F)));
         }
         if (!swing) {
             return;
@@ -123,7 +123,7 @@ public class Wing extends ParticleObject {
      * 利用图案来计算出每个粒子的向量
      */
     public void resetWing() {
-        vectors.clear();
+        vecs.clear();
 
         for (int i = 0; i < pattern.size(); i++) {
             String line = pattern.get(i);
@@ -133,8 +133,8 @@ public class Wing extends ParticleObject {
                 if (!Character.isWhitespace(c)) {
                     double x = interval * (j + 1);
                     double y = interval * (pattern.size() - i);
-                    Vector vector = new Vector(x, y, 0);
-                    vectors.add(vector);
+                    Vec vec = new Vec(x, y, 0);
+                    vecs.add(vec);
                 }
             }
         }

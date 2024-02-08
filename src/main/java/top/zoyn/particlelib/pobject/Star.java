@@ -1,9 +1,9 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
 import top.zoyn.particlelib.utils.VectorUtils;
 
@@ -18,18 +18,18 @@ import java.util.stream.Collectors;
 public class Star extends ParticleObject implements Playable {
 
     private final double length;
-    private final Vector changeableStart;
+    private final Vec changeableStart;
     private double radius;
     private double step;
     private int currentSide = 1;
     private double currentStep = 0;
-    private Location changableEnd;
+    private Pos changableEnd;
 
-    public Star(Location origin) {
+    public Star(Pos origin) {
         this(origin, 1, 0.05);
     }
 
-    public Star(Location origin, double radius, double step) {
+    public Star(Pos origin, double radius, double step) {
         setOrigin(origin);
         this.radius = radius;
         this.step = step;
@@ -39,48 +39,48 @@ public class Star extends ParticleObject implements Playable {
 
         double x = radius * Math.cos(Math.toRadians(72));
         double z = radius * Math.sin(Math.toRadians(72));
-        changeableStart = new Vector(radius * (Math.cos(Math.toRadians(72 * 3)) - x), 0, radius * (Math.sin(Math.toRadians(72 * 3)) - z));
+        changeableStart = new Vec(radius * (Math.cos(Math.toRadians(72 * 3)) - x), 0, radius * (Math.sin(Math.toRadians(72 * 3)) - z));
         changeableStart.normalize();
-        changableEnd = getOrigin().clone().add(x, 0, z);
+        changableEnd = getOrigin().add(x, 0, z);
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
         double x = radius * Math.cos(Math.toRadians(72));
         double z = radius * Math.sin(Math.toRadians(72));
 
         double x2 = radius * Math.cos(Math.toRadians(72 * 3));
         double z2 = radius * Math.sin(Math.toRadians(72 * 3));
 
-        Vector START = new Vector(x2 - x, 0, z2 - z);
+        Vec START = new Vec(x2 - x, 0, z2 - z);
         START.normalize();
-        Location end = getOrigin().clone().add(x, 0, z);
+        Pos end = getOrigin().add(x, 0, z);
 
         for (int i = 1; i <= 5; i++) {
             for (double j = 0; j < length; j += step) {
-                Vector vectorTemp = START.clone().multiply(j);
-                Location spawnLocation = end.clone().add(vectorTemp);
+                Vec vecTemp = START.mul(j);
+                Pos spawnPos = end.add(vecTemp);
 
-                points.add(spawnLocation);
+                points.add(spawnPos);
             }
-            Vector vectorTemp = START.clone().multiply(length);
-            end = end.clone().add(vectorTemp);
+            Vec vecTemp = START.mul(length);
+            end = end.add(vecTemp);
 
             VectorUtils.rotateAroundAxisY(START, 144);
         }
         // 做一个对 Matrix 和 Increment 的兼容
         return points.stream().map(location -> {
-            Location showLocation = location;
+            Pos showPos = location;
             if (hasMatrix()) {
-                Vector v = new Vector(location.getX() - getOrigin().getX(), location.getY() - getOrigin().getY(), location.getZ() - getOrigin().getZ());
-                Vector changed = getMatrix().applyVector(v);
+                Vec v = new Vec(location.x() - getOrigin().x(), location.y() - getOrigin().y(), location.z() - getOrigin().z());
+                Vec changed = getMatrix().applyVector(v);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            return showLocation;
+            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            return showPos;
         }).collect(Collectors.toList());
     }
 
@@ -92,19 +92,19 @@ public class Star extends ParticleObject implements Playable {
         double x2 = radius * Math.cos(Math.toRadians(72 * 3));
         double z2 = radius * Math.sin(Math.toRadians(72 * 3));
 
-        Vector START = new Vector(x2 - x, 0, z2 - z);
+        Vec START = new Vec(x2 - x, 0, z2 - z);
         START.normalize();
-        Location end = getOrigin().clone().add(x, 0, z);
+        Pos end = getOrigin().add(x, 0, z);
 
         for (int i = 1; i <= 5; i++) {
             for (double j = 0; j < length; j += step) {
-                Vector vectorTemp = START.clone().multiply(j);
-                Location spawnLocation = end.clone().add(vectorTemp);
+                Vec vecTemp = START.mul(j);
+                Pos spawnPos = end.add(vecTemp);
 
-                spawnParticle(spawnLocation);
+                spawnParticle(spawnPos);
             }
-            Vector vectorTemp = START.clone().multiply(length);
-            end = end.clone().add(vectorTemp);
+            Vec vecTemp = START.mul(length);
+            end = end.add(vecTemp);
 
             VectorUtils.rotateAroundAxisY(START, 144);
         }
@@ -112,13 +112,13 @@ public class Star extends ParticleObject implements Playable {
 
     @Override
     public void play() {
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             // 转弧度制
             final double radians = Math.toRadians(72);
             final double x = radius * Math.cos(radians);
             final double z = radius * Math.sin(radians);
-            Location end = getOrigin().clone().add(x, 0, z);
-            final Vector START = new Vector(radius * (Math.cos(Math.toRadians(72 * 3)) - x), 0, radius * (Math.sin(Math.toRadians(72 * 3)) - z));
+            Pos end = getOrigin().add(x, 0, z);
+            final Vec START = new Vec(radius * (Math.cos(Math.toRadians(72 * 3)) - x), 0, radius * (Math.sin(Math.toRadians(72 * 3)) - z));
 
             @Override
             public void run() {
@@ -132,15 +132,15 @@ public class Star extends ParticleObject implements Playable {
                     currentSide += 1;
                     currentStep = 0;
 
-                    Vector vectorTemp = START.clone().multiply(length);
-                    end = end.clone().add(vectorTemp);
+                    Vec vecTemp = START.mul(length);
+                    end = end.add(vecTemp);
 
                     VectorUtils.rotateAroundAxisY(START, 144);
                 }
-                Vector vectorTemp = START.clone().multiply(currentStep);
-                Location spawnLocation = end.clone().add(vectorTemp);
+                Vec vecTemp = START.mul(currentStep);
+                Pos spawnPos = end.add(vecTemp);
 
-                spawnParticle(spawnLocation);
+                spawnParticle(spawnPos);
                 currentStep += step;
             }
         }.runTaskTimer(ParticleLib.getInstance(), 0, getPeriod());
@@ -148,10 +148,10 @@ public class Star extends ParticleObject implements Playable {
 
     @Override
     public void playNextPoint() {
-        Vector vectorTemp = changeableStart.clone().multiply(currentStep);
-        Location spawnLocation = changableEnd.clone().add(vectorTemp);
+        Vec vecTemp = changeableStart.mul(currentStep);
+        Pos spawnPos = changableEnd.add(vecTemp);
 
-        spawnParticle(spawnLocation);
+        spawnParticle(spawnPos);
         currentStep += step;
 
         if (currentStep >= length) {
@@ -159,8 +159,8 @@ public class Star extends ParticleObject implements Playable {
             currentSide += 1;
             currentStep = 0;
 
-            vectorTemp = changeableStart.clone().multiply(length);
-            changableEnd = changableEnd.clone().add(vectorTemp);
+            vecTemp = changeableStart.mul(length);
+            changableEnd = changableEnd.add(vecTemp);
 
             // 由于 play 的向量是不需要重置的, 因此可以一直旋转 144 然后画线即可
             VectorUtils.rotateAroundAxisY(changeableStart, 144);

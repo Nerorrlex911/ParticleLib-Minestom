@@ -1,9 +1,9 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-import org.bukkit.Location;
-import org.bukkit.scheduler.BukkitRunnable;
-import org.bukkit.util.Vector;
+import net.minestom.server.coordinate.Pos;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
+import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
 import top.zoyn.particlelib.utils.VectorUtils;
 
@@ -16,13 +16,13 @@ import java.util.stream.Collectors;
  */
 public class Polygon extends ParticleObject implements Playable {
 
-    private final List<Location> locations;
+    private final List<Pos> pos;
     /**
      * 边数
      */
     private int side;
     private double step;
-    private Vector currentVector;
+    private Vec currentVec;
     private int currentLoc = 0;
     private double length;
     private double currentStep = 0;
@@ -33,11 +33,11 @@ public class Polygon extends ParticleObject implements Playable {
      * @param side   边数
      * @param origin 原点
      */
-    public Polygon(int side, Location origin) {
+    public Polygon(int side, Pos origin) {
         this(side, origin, 0.02);
     }
 
-    public Polygon(int side, Location origin, double step) {
+    public Polygon(int side, Pos origin, double step) {
         if (side <= 2) {
             throw new IllegalArgumentException("边数不可为小于或等于2的数!");
         }
@@ -45,7 +45,7 @@ public class Polygon extends ParticleObject implements Playable {
         setOrigin(origin);
         this.step = step;
 
-        this.locations = new ArrayList<>();
+        this.pos = new ArrayList<>();
         resetLocations();
     }
 
@@ -68,77 +68,77 @@ public class Polygon extends ParticleObject implements Playable {
     }
 
     @Override
-    public List<Location> calculateLocations() {
-        List<Location> points = Lists.newArrayList();
-        List<Location> temp = Lists.newArrayList();
+    public List<Pos> calculateLocations() {
+        List<Pos> points = Lists.newArrayList();
+        List<Pos> temp = Lists.newArrayList();
 
         for (double angle = 0; angle <= 360; angle += 360D / side) {
             double radians = Math.toRadians(angle);
             double x = Math.cos(radians);
             double z = Math.sin(radians);
 
-            temp.add(getOrigin().clone().add(x, 0, z));
+            temp.add(getOrigin().add(x, 0, z));
         }
         for (int i = 0; i < temp.size(); i++) {
             if (i + 1 == temp.size()) {
-                Vector vectorAB = temp.get(i).clone().subtract(temp.get(0)).toVector();
-                double vectorLength = vectorAB.length();
-                vectorAB.normalize();
+                Vec vecAB = temp.get(i).sub(temp.get(0)).asVec();
+                double vectorLength = vecAB.length();
+                vecAB.normalize();
                 for (double j = 0; j < vectorLength; j += step) {
-                    points.add(temp.get(0).clone().add(vectorAB.clone().multiply(j)));
+                    points.add(temp.get(0).add(vecAB.mul(j)));
                 }
                 break;
             }
 
-            Vector vectorAB = temp.get(i + 1).clone().subtract(temp.get(i)).toVector();
-            double vectorLength = vectorAB.length();
-            vectorAB.normalize();
+            Vec vecAB = temp.get(i + 1).sub(temp.get(i)).asVec();
+            double vectorLength = vecAB.length();
+            vecAB.normalize();
             for (double j = 0; j < vectorLength; j += step) {
-                points.add(temp.get(i).clone().add(vectorAB.clone().multiply(j)));
+                points.add(temp.get(i).add(vecAB.mul(j)));
             }
         }
         // 做一个对 Matrix 和 Increment 的兼容
         return points.stream().map(location -> {
-            Location showLocation = location;
+            Pos showPos = location;
             if (hasMatrix()) {
-                Vector v = new Vector(location.getX() - getOrigin().getX(), location.getY() - getOrigin().getY(), location.getZ() - getOrigin().getZ());
-                Vector changed = getMatrix().applyVector(v);
+                Vec v = new Vec(location.x() - getOrigin().x(), location.y() - getOrigin().y(), location.z() - getOrigin().z());
+                Vec changed = getMatrix().applyVector(v);
 
-                showLocation = getOrigin().clone().add(changed);
+                showPos = getOrigin().add(changed);
             }
 
-            showLocation.add(getIncrementX(), getIncrementY(), getIncrementZ());
-            return showLocation;
+            showPos.add(getIncrementX(), getIncrementY(), getIncrementZ());
+            return showPos;
         }).collect(Collectors.toList());
     }
 
     @Override
     public void show() {
-        if (locations.isEmpty()) {
+        if (pos.isEmpty()) {
             return;
         }
 
-        for (int i = 0; i < locations.size(); i++) {
-            if (i + 1 == locations.size()) {
-                buildLine(locations.get(i), locations.get(0), step);
+        for (int i = 0; i < pos.size(); i++) {
+            if (i + 1 == pos.size()) {
+                buildLine(pos.get(i), pos.get(0), step);
                 break;
             }
-            buildLine(locations.get(i), locations.get(i + 1), step);
+            buildLine(pos.get(i), pos.get(i + 1), step);
         }
     }
 
     @Override
     public void play() {
-        new BukkitRunnable() {
+        new MinestomRunnable() {
             @Override
             public void run() {
-                Vector vectorTemp = currentVector.clone().normalize().multiply(currentStep);
-                spawnParticle(locations.get(currentLoc).clone().add(vectorTemp));
+                Vec vecTemp = currentVec.normalize().mul(currentStep);
+                spawnParticle(pos.get(currentLoc).add(vecTemp));
 
                 // 重置
                 if (currentStep > length) {
                     currentStep = 0D;
-                    currentVector = VectorUtils.rotateAroundAxisY(currentVector, 360D / side);
+                    currentVec = VectorUtils.rotateAroundAxisY(currentVec, 360D / side);
                     currentLoc++;
                 }
                 // 在此处进行退出
@@ -153,13 +153,13 @@ public class Polygon extends ParticleObject implements Playable {
 
     @Override
     public void playNextPoint() {
-        Vector vectorTemp = currentVector.clone().normalize().multiply(currentStep);
-        spawnParticle(locations.get(currentLoc).clone().add(vectorTemp));
+        Vec vecTemp = currentVec.normalize().mul(currentStep);
+        spawnParticle(pos.get(currentLoc).add(vecTemp));
 
         // 重置
         if (currentStep > length) {
             currentStep = 0D;
-            currentVector = VectorUtils.rotateAroundAxisY(currentVector, 360D / side);
+            currentVec = VectorUtils.rotateAroundAxisY(currentVec, 360D / side);
             currentLoc++;
         }
         if (currentLoc == side) {
@@ -169,18 +169,18 @@ public class Polygon extends ParticleObject implements Playable {
     }
 
     public void resetLocations() {
-        locations.clear();
+        pos.clear();
 
         for (double angle = 0; angle <= 360; angle += 360D / side) {
             double radians = Math.toRadians(angle);
             double x = Math.cos(radians);
             double z = Math.sin(radians);
 
-            locations.add(getOrigin().clone().add(x, 0, z));
+            pos.add(getOrigin().add(x, 0, z));
         }
 
-        currentVector = locations.get(1).clone().subtract(locations.get(0)).toVector();
-        length = currentVector.length();
+        currentVec = pos.get(1).sub(pos.get(0)).asVec();
+        length = currentVec.length();
     }
 
     /**
@@ -190,12 +190,12 @@ public class Polygon extends ParticleObject implements Playable {
      * @param locB 点B
      * @param step 步长
      */
-    private void buildLine(Location locA, Location locB, double step) {
-        Vector vectorAB = locB.clone().subtract(locA).toVector();
-        double vectorLength = vectorAB.length();
-        vectorAB.normalize();
+    private void buildLine(Pos locA, Pos locB, double step) {
+        Vec vecAB = locB.sub(locA).asVec();
+        double vectorLength = vecAB.length();
+        vecAB.normalize();
         for (double i = 0; i < vectorLength; i += step) {
-            spawnParticle(locA.clone().add(vectorAB.clone().multiply(i)));
+            spawnParticle(locA.add(vecAB.mul(i)));
         }
     }
 
