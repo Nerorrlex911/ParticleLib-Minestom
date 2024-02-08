@@ -431,6 +431,7 @@ public abstract class ParticleObject {
 
         // 在这里可以设置一个XYZ的变化量
         showPos = showPos.add(incrementX, incrementY, incrementZ);
+        //TODO: spawn color particle
     }
 
 
