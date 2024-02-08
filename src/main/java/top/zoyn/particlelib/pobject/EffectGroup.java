@@ -1,11 +1,7 @@
 package top.zoyn.particlelib.pobject;
 
 import com.google.common.collect.Lists;
-
-import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.particle.Particle;
-import net.minestom.server.utils.binary.BinaryWriter;
 import net.minestom.server.entity.Entity;
 import top.zoyn.particlelib.utils.matrix.Matrix;
 import top.zoyn.particlelib.utils.matrix.Matrixs;
@@ -13,7 +9,6 @@ import top.zoyn.particlelib.utils.matrix.Matrixs;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.function.Consumer;
 import java.util.stream.Collectors;
 
 /**

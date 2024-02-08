@@ -1,9 +1,9 @@
 package top.zoyn.particlelib.pobject;
 
 import net.minestom.server.coordinate.Pos;
-import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
 import net.minestom.server.coordinate.Vec;
 import top.zoyn.particlelib.ParticleLib;
+import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
 
 import java.util.ArrayList;
 import java.util.List;

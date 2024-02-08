@@ -1,22 +1,16 @@
 package top.zoyn.particlelib.pobject;
 
 import net.kyori.adventure.audience.Audience;
-import net.minestom.server.color.Color;
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.particle.Particle;
-import net.minestom.server.utils.binary.BinaryWriter;
-import net.minestom.server.entity.Entity;
-
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
 import top.zoyn.particlelib.ParticleLib;
 import top.zoyn.particlelib.utils.ParticleSpawner;
-import top.zoyn.particlelib.utils.VersionUtils;
 import top.zoyn.particlelib.utils.matrix.Matrix;
 import top.zoyn.particlelib.utils.scheduler.MinestomRunnable;
 import top.zoyn.particlelib.utils.scheduler.MinestomTask;
 
 import java.util.List;
-import java.util.function.Consumer;
 
 /**
  * 表示一个特效对象

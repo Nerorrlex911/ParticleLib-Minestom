@@ -1,8 +1,6 @@
 package top.zoyn.particlelib.utils.scheduler;
 
 import net.minestom.server.extensions.Extension;
-import org.bukkit.Bukkit;
-
 import org.jetbrains.annotations.NotNull;
 import top.zoyn.particlelib.ParticleLib;
 

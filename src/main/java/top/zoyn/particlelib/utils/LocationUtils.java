@@ -1,10 +1,8 @@
 package top.zoyn.particlelib.utils;
 
 import net.minestom.server.coordinate.Pos;
-import net.minestom.server.entity.Entity;
-import org.bukkit.entity.LivingEntity;
-
 import net.minestom.server.coordinate.Vec;
+import net.minestom.server.entity.Entity;
 
 /**
  * 坐标工具类
