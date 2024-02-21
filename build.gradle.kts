@@ -6,11 +6,14 @@ plugins {
 repositories {
     mavenLocal()
     mavenCentral()
+    maven {
+        url = uri("https://jitpack.io")
+    }
 }
 
 dependencies {
     compileOnly("com.google.guava:guava:33.0.0-jre")
-    compileOnly("dev.hollowcube:minestom-ce:47dfb29c20")
+    compileOnly("net.minestom:minestom-snapshots:c5a145cf8b")
     compileOnly("dev.hollowcube:minestom-ce-extensions:1.2.0")
 }
 
