@@ -1,6 +1,7 @@
 package top.zoyn.particlelib.pobject;
 
 import net.kyori.adventure.audience.Audience;
+import net.minestom.server.Viewable;
 import net.minestom.server.coordinate.Pos;
 import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
@@ -30,7 +31,7 @@ public abstract class ParticleObject {
     
     private Entity entity;
 
-    private Audience audience;
+    private Viewable audience;
     /**
      * X的变化量
      */
@@ -370,11 +371,11 @@ public abstract class ParticleObject {
         this.particleSpawner = particleSpawner;
     }
 
-    public Audience getAudience() {
+    public Viewable getAudience() {
         return audience;
     }
 
-    public void setAudience(Audience audience) {
+    public void setAudience(Viewable audience) {
         this.audience = audience;
     }
 

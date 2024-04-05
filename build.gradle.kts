@@ -7,13 +7,16 @@ repositories {
     mavenLocal()
     mavenCentral()
     maven {
+        url = uri("https://repo1.maven.org/maven2/")
+    }
+    maven {
         url = uri("https://jitpack.io")
     }
 }
 
 dependencies {
     compileOnly("com.google.guava:guava:33.0.0-jre")
-    compileOnly("net.minestom:minestom-snapshots:c5a145cf8b")
+    compileOnly("net.minestom:minestom-snapshots:6758737b80")
     compileOnly("dev.hollowcube:minestom-ce-extensions:1.2.0")
 }
 
