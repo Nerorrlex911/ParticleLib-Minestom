@@ -116,6 +116,11 @@ public class Astroid extends ParticleObject implements Playable {
         }
     }
 
+    @Override
+    public boolean hasNext() {
+        return currentT < 360D;
+    }
+
     public double getRadius() {
         return radius;
     }

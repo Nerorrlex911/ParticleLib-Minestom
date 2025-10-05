@@ -11,4 +11,8 @@ public interface Playable {
 
     void playNextPoint();
 
+    default boolean hasNext() {
+        return true;
+    }
+
 }

@@ -136,6 +136,11 @@ public class Arc extends ParticleObject implements Playable {
         }
     }
 
+    @Override
+    public boolean hasNext() {
+        return currentAngle < angle;
+    }
+
     public double getStartAngle() {
         return startAngle;
     }

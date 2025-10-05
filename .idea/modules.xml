@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/ParticleLib.main.iml" filepath="$PROJECT_DIR$/.idea/modules/ParticleLib.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/api.ParticleLib.main.iml" filepath="$PROJECT_DIR$/.idea/modules/api.ParticleLib.main.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/top.zoyn.particlelib.ParticleLib.main.iml" filepath="$PROJECT_DIR$/.idea/modules/top.zoyn.particlelib.ParticleLib.main.iml" />
     </modules>
   </component>
 </project>

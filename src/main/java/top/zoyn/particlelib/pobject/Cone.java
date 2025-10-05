@@ -118,6 +118,11 @@ public class Cone extends ParticleObject implements Playable {
         currentSample++;
     }
 
+    @Override
+    public boolean hasNext() {
+        return currentSample + 1 == pos.size();
+    }
+
     public int getSample() {
         return sample;
     }

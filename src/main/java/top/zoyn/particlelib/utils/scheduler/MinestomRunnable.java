@@ -1,6 +1,7 @@
 package top.zoyn.particlelib.utils.scheduler;
 
-import net.minestom.server.extensions.Extension;
+
+import com.github.zimablue.devoutserver.plugin.Plugin;
 import org.jetbrains.annotations.NotNull;
 import top.zoyn.particlelib.ParticleLib;
 
@@ -20,32 +21,32 @@ public abstract class MinestomRunnable implements Runnable {
             this.task.cancel();
     }
 
-    public synchronized @NotNull MinestomTask runTask(@NotNull Extension plugin) throws IllegalArgumentException, IllegalStateException {
+    public synchronized @NotNull MinestomTask runTask(@NotNull Plugin plugin) throws IllegalArgumentException, IllegalStateException {
         this.checkNotYetScheduled();
         return this.setupTask(ParticleLib.getScheduler().runTask(plugin, this));
     }
 
-    public synchronized @NotNull MinestomTask runTaskAsynchronously(@NotNull Extension plugin) throws IllegalArgumentException, IllegalStateException {
+    public synchronized @NotNull MinestomTask runTaskAsynchronously(@NotNull Plugin plugin) throws IllegalArgumentException, IllegalStateException {
         this.checkNotYetScheduled();
         return this.setupTask(ParticleLib.getScheduler().runTaskAsynchronously(plugin, this));
     }
 
-    public synchronized @NotNull MinestomTask runTaskLater(@NotNull Extension plugin, long delay) throws IllegalArgumentException, IllegalStateException {
+    public synchronized @NotNull MinestomTask runTaskLater(@NotNull Plugin plugin, long delay) throws IllegalArgumentException, IllegalStateException {
         this.checkNotYetScheduled();
         return this.setupTask(ParticleLib.getScheduler().runTaskLater(plugin, this, delay));
     }
 
-    public synchronized @NotNull MinestomTask runTaskLaterAsynchronously(@NotNull Extension plugin, long delay) throws IllegalArgumentException, IllegalStateException {
+    public synchronized @NotNull MinestomTask runTaskLaterAsynchronously(@NotNull Plugin plugin, long delay) throws IllegalArgumentException, IllegalStateException {
         this.checkNotYetScheduled();
         return this.setupTask(ParticleLib.getScheduler().runTaskLaterAsynchronously(plugin, this, delay));
     }
 
-    public synchronized @NotNull MinestomTask runTaskTimer(@NotNull Extension plugin, long delay, long period) throws IllegalArgumentException, IllegalStateException {
+    public synchronized @NotNull MinestomTask runTaskTimer(@NotNull Plugin plugin, long delay, long period) throws IllegalArgumentException, IllegalStateException {
         this.checkNotYetScheduled();
         return this.setupTask(ParticleLib.getScheduler().runTaskTimer(plugin, this, delay, period));
     }
 
-    public synchronized @NotNull MinestomTask runTaskTimerAsynchronously(@NotNull Extension plugin, long delay, long period) throws IllegalArgumentException, IllegalStateException {
+    public synchronized @NotNull MinestomTask runTaskTimerAsynchronously(@NotNull Plugin plugin, long delay, long period) throws IllegalArgumentException, IllegalStateException {
         this.checkNotYetScheduled();
         return this.setupTask(ParticleLib.getScheduler().runTaskTimerAsynchronously(plugin, this, delay, period));
     }

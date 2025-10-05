@@ -16,8 +16,7 @@ repositories {
 
 dependencies {
     compileOnly("com.google.guava:guava:33.0.0-jre")
-    compileOnly("net.minestom:minestom-snapshots:6758737b80")
-    compileOnly("dev.hollowcube:minestom-ce-extensions:1.2.0")
+    compileOnly("com.github.zimablue.devoutserver:DevoutServer:1.0-SNAPSHOT")
 }
 
 group = "top.zoyn.particlelib"

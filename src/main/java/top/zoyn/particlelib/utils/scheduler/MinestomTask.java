@@ -1,14 +1,15 @@
 package top.zoyn.particlelib.utils.scheduler;
 
 
-import net.minestom.server.extensions.Extension;
+
+import com.github.zimablue.devoutserver.plugin.Plugin;
 import net.minestom.server.timer.Task;
 
 public class MinestomTask {
     private final Task task;
-    private final Extension plugin;
+    private final Plugin plugin;
 
-    public MinestomTask(Task task, Extension plugin) {
+    public MinestomTask(Task task, Plugin plugin) {
         this.task = task;
         this.plugin = plugin;
     }
@@ -18,7 +19,7 @@ public class MinestomTask {
     }
 
 
-    public Extension getOwner() {
+    public Plugin getOwner() {
         return plugin;
     }
 

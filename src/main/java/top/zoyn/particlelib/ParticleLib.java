@@ -1,6 +1,9 @@
 package top.zoyn.particlelib;
 
-import net.minestom.server.extensions.Extension;
+import com.github.zimablue.devoutserver.plugin.Plugin;
+import net.minestom.server.MinecraftServer;
+import net.minestom.server.timer.Scheduler;
+import top.zoyn.particlelib.command.ParticleCommand;
 import top.zoyn.particlelib.utils.scheduler.MinestomScheduler;
 
 /**
@@ -8,11 +11,13 @@ import top.zoyn.particlelib.utils.scheduler.MinestomScheduler;
  *
  * @author Zoyn
  */
-public class ParticleLib extends Extension {
+public class ParticleLib extends Plugin {
 
     private static ParticleLib instance;
 
     private final MinestomScheduler scheduler = new MinestomScheduler();
+
+    private final Scheduler asyncScheduler = Scheduler.newScheduler();
 
     public static ParticleLib getInstance() {
         return instance;
@@ -32,13 +37,14 @@ public class ParticleLib extends Extension {
     }
 
     @Override
-    public void initialize() {
+    public void onEnable() {
         instance = this;
+        MinecraftServer.getCommandManager().register(new ParticleCommand());
         sendLog("§a粒子库已成功加载");
     }
 
     @Override
-    public void terminate() {
+    public void onDisable() {
         sendLog("§a粒子库已成功卸载");
     }
 
