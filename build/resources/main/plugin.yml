@@ -1,6 +1,0 @@
-name: "ParticleLib"
-entrypoint: "top.zoyn.particlelib.ParticleLib"
-# the package for annotations scan
-packageName: "top.zoyn.particlelib"
-
-version: "1.5.1"
