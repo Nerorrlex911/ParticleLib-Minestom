@@ -107,6 +107,10 @@ public class Line extends ParticleObject implements Playable {
             currentStep = 0D;
         }
     }
+    @Override
+    public boolean hasNext() {
+        return currentStep > length;
+    }
 
     public Pos getStart() {
         return start;
